@@ -70,8 +70,13 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+    Cookies.set('user', JSON.stringify(updatedUser), { expires: 7 });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateUser, setUser }}>
       {children}
     </AuthContext.Provider>
   );
