@@ -23,13 +23,14 @@ class RecommendationService
     {
         $recommendations = collect();
 
+        // Get waste reduction resources if items are expiring
         $expiringItemsCount = $this->getExpiringItemsCount($user);
         if ($expiringItemsCount > 0) {
             $wasteReductionResources = $this->getWasteReductionResources($expiringItemsCount);
             $recommendations = $recommendations->merge($wasteReductionResources);
         }
 
-        $userCategories = $this->getUserCategories($user);
+        // Get category-based recommendations
         $userCategories = $this->getUserCategories($user);
         $categoryResources = $this->getCategoryResources($userCategories);
         $recommendations = $recommendations->merge($categoryResources);

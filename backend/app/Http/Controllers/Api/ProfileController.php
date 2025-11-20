@@ -38,7 +38,9 @@ class ProfileController extends Controller
     {
         Log::info('Profile update request received', [
             'has_file' => $request->hasFile('profile_image'),
-            'all_data' => $request->all(),
+            'files' => $request->allFiles(),
+            'method' => $request->method(),
+            'content_type' => $request->header('Content-Type'),
         ]);
 
         $user = $request->user();
@@ -46,8 +48,8 @@ class ProfileController extends Controller
 
         Log::info('Validated data', ['data' => $data]);
 
-        // Handle profile image upload
-        if ($request->hasFile('profile_image')) {
+        // Handle profile image upload - check both file() and hasFile()
+        if ($request->hasFile('profile_image') && $request->file('profile_image')->isValid()) {
             Log::info('Processing profile image upload');
             $image = $request->file('profile_image');
             $filename = time() . '_' . $user->id . '.' . $image->getClientOriginalExtension();
