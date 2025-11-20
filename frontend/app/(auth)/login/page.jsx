@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, Leaf, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -30,62 +30,78 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0">
-        <div className="absolute w-96 h-96 bg-teal-500/10 rounded-full blur-3xl top-0 left-0 animate-pulse"></div>
-        <div className="absolute w-96 h-96 bg-purple-500/10 rounded-full blur-3xl bottom-0 right-0 animate-pulse" style={{animationDelay: '1s'}}></div>
+    <div className="min-h-screen flex bg-black text-white overflow-hidden">
+      {/* Left Side - Hero/Visuals (Hidden on mobile) */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-gray-900 items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-900/40 to-black z-10"></div>
+        {/* Abstract Shapes */}
+        <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-teal-500/10 rounded-full blur-[120px] animate-pulse"></div>
+        <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] bg-purple-500/10 rounded-full blur-[120px] animate-pulse" style={{animationDelay: '2s'}}></div>
+        
+        <div className="relative z-20 p-12 max-w-xl text-center">
+            <div className="w-20 h-20 bg-gradient-to-tr from-[#00FFB1] to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-[#00FFB1]/20 rotate-3 hover:rotate-6 transition-transform duration-500">
+                <Leaf className="w-10 h-10 text-black" />
+            </div>
+            <h1 className="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                Welcome to <span className="text-[#00FFB1]">FoodFlow</span>
+            </h1>
+            <p className="text-xl text-gray-400 leading-relaxed">
+                Join our community in reducing food waste and managing consumption smarter. Track, analyze, and save.
+            </p>
+        </div>
       </div>
 
-      <div className="max-w-md w-full relative z-10 fade-in">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold gradient-text mb-2">FoodFlow</h1>
-          <p className="text-gray-400">Welcome back to your dashboard</p>
+      {/* Right Side - Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 relative">
+        {/* Mobile Background Effects */}
+        <div className="absolute inset-0 lg:hidden overflow-hidden pointer-events-none">
+             <div className="absolute top-[-20%] right-[-20%] w-[80%] h-[80%] bg-teal-500/10 rounded-full blur-[100px]"></div>
         </div>
 
-        <div className="premium-card p-8 rounded-2xl">
-          <h2 className="text-2xl font-bold text-white mb-6">
-            Sign In
-          </h2>
+        <div className="w-full max-w-md space-y-8 relative z-10">
+          <div className="text-center lg:text-left">
+            <h2 className="text-3xl font-bold text-white mb-2">Sign In</h2>
+            <p className="text-gray-400">Enter your details to access your account</p>
+          </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg mb-6">
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Email Address
-              </label>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-300 ml-1">Email Address</label>
               <input
                 type="email"
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:border-teal-500 transition-colors"
-                placeholder="you@example.com"
+                className="w-full px-5 py-4 bg-gray-900/50 border border-gray-800 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-[#00FFB1] focus:border-transparent transition-all outline-none"
+                placeholder="name@example.com"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Password
-              </label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between ml-1">
+                <label className="text-sm font-medium text-gray-300">Password</label>
+                <a href="#" className="text-xs text-[#00FFB1] hover:underline">Forgot password?</a>
+              </div>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:border-teal-500 transition-colors pr-12"
-                  placeholder="••••••••"
+                  className="w-full px-5 py-4 bg-gray-900/50 border border-gray-800 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-[#00FFB1] focus:border-transparent transition-all outline-none pr-12"
+                  placeholder="Enter your password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -95,20 +111,25 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-premium py-3 rounded-lg text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#00FFB1] hover:bg-[#00db9a] text-black font-bold py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:scale-[1.01]"
             >
               {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
                   Signing In...
-                </span>
-              ) : 'Sign In'}
+                </>
+              ) : (
+                <>
+                  Sign In
+                  <ArrowRight className="w-5 h-5" />
+                </>
+              )}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-gray-400">
+          <p className="text-center text-gray-400">
             Don't have an account?{' '}
-            <Link href="/register" className="text-teal-400 hover:text-teal-300 font-medium transition-colors">
+            <Link href="/register" className="text-[#00FFB1] font-medium hover:underline transition-all">
               Create Account
             </Link>
           </p>
