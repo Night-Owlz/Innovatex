@@ -1,95 +1,80 @@
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}
+
 export function formatDate(dateString) {
-  if (!dateString) return '';
+  if (!dateString) return 'N/A';
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
   });
 }
 
-export function getDaysUntilExpiration(expirationDate) {
-  if (!expirationDate) return null;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const expiry = new Date(expirationDate);
-  expiry.setHours(0, 0, 0, 0);
-  const diffTime = expiry - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays;
-}
-
-export function isExpiringSoon(expirationDate, days = 3) {
-  const daysUntil = getDaysUntilExpiration(expirationDate);
-  return daysUntil !== null && daysUntil >= 0 && daysUntil <= days;
-}
-
-export function isExpired(expirationDate) {
-  const daysUntil = getDaysUntilExpiration(expirationDate);
-  return daysUntil !== null && daysUntil < 0;
-}
-
-/**
- * Get expiration status matching backend DateHelper
- * @param {string} expirationDate 
- * @returns {'expired'|'critical'|'warning'|'fresh'}
- */
-export function getExpirationStatus(expirationDate) {
-  const days = getDaysUntilExpiration(expirationDate);
-  
-  if (days === null) return 'fresh';
-  if (days < 0) return 'expired';
-  if (days <= 1) return 'critical';
-  if (days <= 3) return 'warning';
-  return 'fresh';
-}
-
-/**
- * Get CSS classes for expiration status badge
- */
 export function getExpirationBadgeClasses(expirationDate) {
-  const status = getExpirationStatus(expirationDate);
-  
-  const classes = {
-    expired: 'bg-red-100 text-red-800 border-red-200',
-    critical: 'bg-orange-100 text-orange-800 border-orange-200',
-    warning: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    fresh: 'bg-green-100 text-green-800 border-green-200',
-  };
-  
-  return classes[status] || classes.fresh;
+  if (!expirationDate) return 'badge-teal';
+
+  const today = new Date();
+  const expDate = new Date(expirationDate);
+  const daysUntilExpiration = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+
+  if (daysUntilExpiration < 0) return 'badge-red';
+  if (daysUntilExpiration <= 3) return 'badge-orange';
+  if (daysUntilExpiration <= 7) return 'badge-yellow';
+  return 'badge-green';
 }
 
-/**
- * Format expiration date with contextual text
- */
 export function formatExpirationDate(expirationDate) {
-  const days = getDaysUntilExpiration(expirationDate);
-  
-  if (days === null) return 'No expiration date';
-  if (days < 0) return `Expired ${Math.abs(days)} day${Math.abs(days) !== 1 ? 's' : ''} ago`;
-  if (days === 0) return 'Expires today';
-  if (days === 1) return 'Expires tomorrow';
-  return `Expires in ${days} days`;
+  if (!expirationDate) return 'No expiration';
+
+  const today = new Date();
+  const expDate = new Date(expirationDate);
+  const daysUntilExpiration = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+
+  if (daysUntilExpiration < 0) {
+    return `Expired ${Math.abs(daysUntilExpiration)} days ago`;
+  }
+  if (daysUntilExpiration === 0) return 'Expires today';
+  if (daysUntilExpiration === 1) return 'Expires tomorrow';
+  if (daysUntilExpiration <= 7) return `Expires in ${daysUntilExpiration} days`;
+
+  return formatDate(expirationDate);
 }
 
-/**
- * Parse Laravel paginated response
- */
 export function parsePaginatedResponse(response) {
-  // Handle both meta (Laravel default) and pagination (custom) structures
-  const paginationData = response?.pagination || response?.meta || {};
+  // Handle API response structure: { success, message, data, pagination }
+  if (response?.pagination) {
+    return {
+      data: response.data || [],
+      pagination: response.pagination
+    };
+  }
   
+  // Handle nested data structure
+  if (response?.data) {
+    return {
+      data: response.data.data || response.data,
+      pagination: response.data.pagination || {
+        currentPage: response.data.current_page || 1,
+        lastPage: response.data.last_page || 1,
+        total: response.data.total || 0,
+        perPage: response.data.per_page || 10
+      }
+    };
+  }
+
+  // Fallback for simple array responses
   return {
-    data: response?.data || [],
+    data: Array.isArray(response) ? response : [],
     pagination: {
-      currentPage: paginationData?.current_page || paginationData?.currentPage || 1,
-      lastPage: paginationData?.last_page || paginationData?.lastPage || 1,
-      perPage: paginationData?.per_page || paginationData?.perPage || 15,
-      total: paginationData?.total || 0,
-      from: paginationData?.from || 0,
-      to: paginationData?.to || 0,
-    },
-    links: response?.links || {},
+      currentPage: 1,
+      lastPage: 1,
+      total: Array.isArray(response) ? response.length : 0,
+      perPage: Array.isArray(response) ? response.length : 10
+    }
   };
 }

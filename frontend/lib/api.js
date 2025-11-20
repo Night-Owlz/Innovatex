@@ -24,7 +24,11 @@ export const api = {
   },
 
   async updateProfileWithImage(formData) {
-    return apiMiddleware.post(routes.user.profile, formData);
+    return apiMiddleware.post(routes.user.profile, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
   },
 
   // Consumption logs endpoints
