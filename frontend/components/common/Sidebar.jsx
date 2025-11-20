@@ -19,7 +19,7 @@ import {
   ChevronRight,
   Settings,
 } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -38,6 +38,10 @@ export default function Sidebar() {
   const { user, logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Debug: Log user data to see profile_image
+  console.log('Sidebar user data:', user);
+  console.log('Profile image:', user?.profile_image);
 
   const handleCollapse = () => {
     const newState = !collapsed;
@@ -105,6 +109,12 @@ export default function Sidebar() {
                 "transition-all duration-300",
                 !collapsed ? "h-10 w-10" : "h-12 w-12"
               )}>
+                {user?.profile_image && (
+                  <AvatarImage 
+                    src={`${process.env.NEXT_PUBLIC_API_URL}${user.profile_image}`} 
+                    alt={user?.full_name} 
+                  />
+                )}
                 <AvatarFallback className="bg-gradient-to-br from-teal-500 to-teal-600 text-white text-sm font-semibold">
                   {getInitials(user?.full_name)}
                 </AvatarFallback>
