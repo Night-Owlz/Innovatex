@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\MealPlannerController;
 use App\Http\Controllers\Api\ChatbotController;
 use App\Http\Controllers\Api\ImpactScoreController;
 use App\Http\Controllers\Api\WasteController;
+use App\Http\Controllers\Api\ExpirationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -72,6 +73,7 @@ Route::prefix('v1')->name('v1.')->group(function () {
             Route::post('optimize-meal-plan', [MealPlannerController::class, 'optimizeMealPlan'])->name('optimize-meal-plan');
             Route::get('impact-score', [ImpactScoreController::class, 'calculateScore'])->name('impact-score');
             Route::get('waste-estimation', [WasteController::class, 'estimation'])->name('waste-estimation');
+            Route::get('expiration-risks', [ExpirationController::class, 'getRisks'])->name('expiration-risks');
         });
         
         // Chatbot
