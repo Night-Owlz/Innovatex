@@ -57,6 +57,12 @@ export default function AppSidebar() {
       description: 'AI Analysis'
     },
     {
+      href: '/meal-planner',
+      label: 'Meal Planner',
+      icon: ClipboardList,
+      description: 'Weekly Meal Plans'
+    },
+    {
       href: '/inventory',
       label: 'Inventory',
       icon: Package,
