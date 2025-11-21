@@ -16,6 +16,7 @@ import {
   Settings,
   ChevronRight,
   Bot,
+  ScanLine,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -68,6 +69,12 @@ export default function AppSidebar() {
       label: 'NourishBot',
       icon: Bot,
       description: 'AI Chat Assistant'
+    },
+    {
+      href: '/ocr-scan',
+      label: 'OCR Scanner',
+      icon: ScanLine,
+      description: 'Extract from Images'
     },
     {
       href: '/inventory',
