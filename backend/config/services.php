@@ -37,4 +37,9 @@ return [
         'site_name' => env('OPENROUTER_SITE_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    'google' => [
+        'project_id' => env('GOOGLE_CLOUD_PROJECT_ID'),
+        'credentials' => env('GOOGLE_APPLICATION_CREDENTIALS', 'storage/app/google-credentials.json'),
+    ],
+
 ];

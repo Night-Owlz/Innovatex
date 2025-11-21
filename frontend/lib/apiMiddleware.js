@@ -137,6 +137,11 @@ export const routes = {
     sessions: '/chatbot/sessions',
     deleteSession: (sessionId) => `/chatbot/sessions/${sessionId}`,
   },
+
+  // OCR routes
+  ocr: {
+    extract: '/ocr-extract',
+  },
 };
 
 export default apiClient;

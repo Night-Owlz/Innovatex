@@ -117,4 +117,9 @@ export const api = {
   async deleteChatSession(sessionId) {
     return apiMiddleware.delete(routes.chatbot.deleteSession(sessionId));
   },
+
+  // OCR endpoints
+  async extractItemsFromImage(imageId) {
+    return apiMiddleware.post(routes.ocr.extract, { imageId });
+  },
 };

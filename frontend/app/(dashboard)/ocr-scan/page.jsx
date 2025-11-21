@@ -36,7 +36,7 @@ export default function OCRScanPage() {
 
     setError(null);
     setSelectedFile(file);
-    
+
     // Create preview
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -51,7 +51,7 @@ export default function OCRScanPage() {
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const file = e.dataTransfer.files[0];
     handleFileSelect(file);
   };
@@ -70,65 +70,67 @@ export default function OCRScanPage() {
       // Step 1: Upload image
       const formData = new FormData();
       formData.append('image', file);
+      formData.append('upload_type', 'receipt'); // Required field for validation
 
-      const uploadResponse = await api.post('/images/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const uploadResponse = await api.uploadImage(formData);
 
-      const imageId = uploadResponse.data.image?.id || uploadResponse.data.id;
+      // Handle wrapped response: { data: { id, ... }, message, ... }
+      const imageId = uploadResponse.data?.id || uploadResponse.id;
+
+      if (!imageId) {
+        throw new Error('Failed to get image ID from upload response');
+      }
+
       setUploadedImageId(imageId);
       setUploading(false);
 
       // Step 2: Extract items
       setExtracting(true);
-      const extractResponse = await api.post('/ai/ocr-extract', {
-        imageId: imageId,
-      });
+      const extractResponse = await api.extractItemsFromImage(imageId);
 
-      setRawText(extractResponse.data.rawText || '');
-      
+      setRawText(extractResponse.extractedText || '');
+
       // Parse items and add selection/editing state
-      const items = (extractResponse.data.items || []).map((item, index) => ({
+      const items = (extractResponse.parsedItems || []).map((item, index) => ({
         ...item,
         id: index,
+        name: item.itemName || item.name, // Normalize field name
         selected: true,
         editing: false,
       }));
-      
+
       setParsedItems(items);
       setExtracting(false);
 
     } catch (err) {
       console.error('Error uploading/extracting:', err);
-      setError(err.response?.data?.message || 'Failed to process image. Please try again.');
+      setError(err.message || 'Failed to process image. Please try again.');
       setUploading(false);
       setExtracting(false);
     }
   };
 
   const toggleItemSelection = (id) => {
-    setParsedItems(prev => prev.map(item => 
+    setParsedItems(prev => prev.map(item =>
       item.id === id ? { ...item, selected: !item.selected } : item
     ));
   };
 
   const toggleItemEditing = (id) => {
-    setParsedItems(prev => prev.map(item => 
+    setParsedItems(prev => prev.map(item =>
       item.id === id ? { ...item, editing: !item.editing } : item
     ));
   };
 
   const updateItem = (id, field, value) => {
-    setParsedItems(prev => prev.map(item => 
+    setParsedItems(prev => prev.map(item =>
       item.id === id ? { ...item, [field]: value } : item
     ));
   };
 
   const addToInventory = async () => {
     const selectedItems = parsedItems.filter(item => item.selected);
-    
+
     if (selectedItems.length === 0) {
       setError('Please select at least one item to add to inventory');
       return;
@@ -139,7 +141,7 @@ export default function OCRScanPage() {
       setError(null);
 
       // Add each item to inventory
-      const promises = selectedItems.map(item => 
+      const promises = selectedItems.map(item =>
         api.post('/inventory', {
           item_name: item.name || item.item_name,
           quantity: parseFloat(item.quantity) || 1,
@@ -152,7 +154,7 @@ export default function OCRScanPage() {
       await Promise.all(promises);
 
       setSuccess(`Successfully added ${selectedItems.length} item(s) to inventory!`);
-      
+
       // Reset after 2 seconds
       setTimeout(() => {
         resetForm();
@@ -402,9 +404,8 @@ export default function OCRScanPage() {
                             <td className="py-3 px-2">
                               <button
                                 onClick={() => toggleItemEditing(item.id)}
-                                className={`p-2 rounded hover:bg-muted transition-colors ${
-                                  item.editing ? 'text-lime-500' : 'text-muted-foreground'
-                                }`}
+                                className={`p-2 rounded hover:bg-muted transition-colors ${item.editing ? 'text-lime-500' : 'text-muted-foreground'
+                                  }`}
                                 title={item.editing ? 'Save' : 'Edit'}
                               >
                                 {item.editing ? <Check className="h-4 w-4" /> : <Edit2 className="h-4 w-4" />}

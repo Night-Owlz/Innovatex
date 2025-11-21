@@ -82,6 +82,9 @@ Route::prefix('v1')->name('v1.')->group(function () {
             Route::get('sessions', [ChatbotController::class, 'getSessions'])->name('sessions');
             Route::delete('sessions/{sessionId}', [ChatbotController::class, 'deleteSession'])->name('delete-session');
         });
+
+        // OCR (direct endpoint)
+        Route::post('ocr-extract', [OCRController::class, 'extractFromImage'])->name('ocr-extract');
     });
 });
 
