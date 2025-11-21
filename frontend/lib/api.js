@@ -122,4 +122,15 @@ export const api = {
   async extractItemsFromImage(imageId) {
     return apiMiddleware.post(routes.ocr.extract, { imageId });
   },
+
+  // AI endpoints
+  async getWasteEstimation() {
+    return aiMiddleware.get(routes.ai.wasteEstimation);
+  },
+
+  async getSDGScore() {
+    return aiMiddleware.get(routes.ai.sdgScore);
+  },
 };
+
+export default api;
