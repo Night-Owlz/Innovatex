@@ -17,6 +17,11 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "INNOVATEX Food Management Platform",
   description: "Food tracking, inventory management, and sustainable consumption platform",
+  icons: {
+    icon: "/logo.svg",
+    shortcut: "/logo.svg",
+    apple: "/logo.svg",
+  },
 };
 
 export default function RootLayout({ children }) {

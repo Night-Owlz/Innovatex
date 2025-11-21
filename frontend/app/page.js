@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
@@ -13,7 +14,19 @@ export default function Home() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Navigation */}
         <nav className="py-6 flex justify-between items-center">
-          <h1 className="text-3xl font-bold gradient-text">FoodFlow</h1>
+          <Link href="/" className="flex items-center gap-3">
+            <Image
+              src="/logo.svg"
+              alt="Innovatex leaf logo"
+              width={48}
+              height={48}
+              className="rounded-2xl shadow-2xl shadow-[#00FFB1]/20 rotate-3 hover:rotate-0 transition-transform duration-300"
+            />
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-teal-300">Innovatex</p>
+              <p className="text-3xl font-bold gradient-text">FoodFlow</p>
+            </div>
+          </Link>
           <div className="flex items-center gap-4">
             <Link 
               href="/login" 

@@ -41,8 +41,24 @@ export default function DashboardLayout({ children }) {
         <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
-          <div className="flex items-center gap-2 flex-1">
-            <h1 className="text-lg font-semibold">FoodFlow Dashboard</h1>
+          <div className="flex items-center gap-4 flex-1">
+            <a className="flex items-center gap-3" href="/dashboard">
+              <img
+                alt="InnovateX leaf logo"
+                loading="lazy"
+                width="40"
+                height="40"
+                decoding="async"
+                data-nimg="1"
+                className="rounded-2xl shadow-[0_18px_30px_rgba(0,255,177,0.15)] rotate-2"
+                src="/logo.svg"
+                style={{ color: 'transparent' }}
+              />
+            </a>
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-teal-300/70">Dashboard</p>
+              <h1 className="text-lg font-semibold">InnovateX FoodFlow</h1>
+            </div>
           </div>
           <ThemeToggle />
         </header>

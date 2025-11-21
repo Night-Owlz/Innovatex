@@ -1,5 +1,6 @@
-'use client';
+ 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -87,21 +88,35 @@ export default function AppSidebar() {
   return (
     <Sidebar collapsible="icon" variant="sidebar">
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-lime-500 to-lime-600 text-white">
-                  <TrendingUp className="size-4" />
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <a 
+                className="peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left outline-hidden ring-sidebar-ring transition-[width,height,padding] focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground h-12 text-sm group-data-[collapsible=icon]:p-0! flex items-center gap-3"
+                data-slot="sidebar-menu-button"
+                data-sidebar="menu-button"
+                data-size="lg"
+                data-active="false"
+                href="/dashboard"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#00FFB1]/10 via-transparent to-[#00FFB1]/0 flex items-center justify-center">
+                  <img
+                    alt="InnovateX leaf logo"
+                    loading="lazy"
+                    width="44"
+                    height="44"
+                    decoding="async"
+                    data-nimg="1"
+                    className="rounded-2xl"
+                    src="/logo.svg"
+                    style={{ color: 'transparent' }}
+                  />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">FoodFlow</span>
-                  <span className="truncate text-xs">Premium</span>
+                  <span className="truncate font-semibold text-white">InnovateX FoodFlow</span>
                 </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+              </a>
+            </SidebarMenuItem>
+          </SidebarMenu>
       </SidebarHeader>
 
       <SidebarContent>
