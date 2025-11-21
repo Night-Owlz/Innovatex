@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ImageUploadController;
 use App\Http\Controllers\Api\AIAnalysisController;
 use App\Http\Controllers\Api\OCRController;
 use App\Http\Controllers\Api\MealPlannerController;
+use App\Http\Controllers\Api\ChatbotController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -67,6 +68,13 @@ Route::prefix('v1')->name('v1.')->group(function () {
             Route::post('analyze-patterns', [AIAnalysisController::class, 'analyzePatterns'])->name('analyze-patterns');
             Route::post('ocr-extract', [OCRController::class, 'extractFromImage'])->name('ocr-extract');
             Route::post('optimize-meal-plan', [MealPlannerController::class, 'optimizeMealPlan'])->name('optimize-meal-plan');
+        });
+        
+        // Chatbot
+        Route::prefix('chatbot')->name('chatbot.')->group(function () {
+            Route::post('message', [ChatbotController::class, 'sendMessage'])->name('message');
+            Route::get('sessions', [ChatbotController::class, 'getSessions'])->name('sessions');
+            Route::delete('sessions/{sessionId}', [ChatbotController::class, 'deleteSession'])->name('delete-session');
         });
     });
 });

@@ -31,4 +31,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'openrouter' => [
+        'api_key' => env('OPENROUTER_API_KEY'),
+        'site_url' => env('OPENROUTER_SITE_URL', env('APP_URL', 'http://localhost')),
+        'site_name' => env('OPENROUTER_SITE_NAME', env('APP_NAME', 'Laravel')),
+    ],
+
 ];
