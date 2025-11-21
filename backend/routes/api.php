@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ImageUploadController;
 use App\Http\Controllers\Api\AIAnalysisController;
 use App\Http\Controllers\Api\OCRController;
+use App\Http\Controllers\Api\MealPlannerController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -65,6 +66,7 @@ Route::prefix('v1')->name('v1.')->group(function () {
         Route::prefix('ai')->name('ai.')->group(function () {
             Route::post('analyze-patterns', [AIAnalysisController::class, 'analyzePatterns'])->name('analyze-patterns');
             Route::post('ocr-extract', [OCRController::class, 'extractFromImage'])->name('ocr-extract');
+            Route::post('optimize-meal-plan', [MealPlannerController::class, 'optimizeMealPlan'])->name('optimize-meal-plan');
         });
     });
 });
