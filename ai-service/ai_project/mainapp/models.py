@@ -274,3 +274,52 @@ class ImpactScore(models.Model):
 
     def __str__(self):
         return f"Impact Score for {self.user.name} - {self.score_date}: {self.overall_score}"
+
+
+class SDGScore(models.Model):
+    """
+    UN Sustainable Development Goals (SDG) Score
+    Focuses on SDG 2 (Zero Hunger), SDG 3 (Good Health), and SDG 12 (Responsible Consumption)
+    """
+    user = models.ForeignKey(UserBase, on_delete=models.CASCADE, related_name='sdg_scores')
+    week_start_date = models.DateField()
+    
+    # Overall SDG Score (0-100)
+    overall_sdg_score = models.FloatField(default=0, help_text="Overall SDG impact score")
+    
+    # SDG Component Scores
+    sdg_2_score = models.FloatField(default=0, help_text="SDG 2: Zero Hunger - Nutrition adequacy")
+    sdg_3_score = models.FloatField(default=0, help_text="SDG 3: Good Health - Health impact")
+    sdg_12_score = models.FloatField(default=0, help_text="SDG 12: Responsible Consumption - Waste reduction")
+    
+    # Detailed Metrics
+    waste_reduction_percentage = models.FloatField(default=0, help_text="% reduction vs community avg")
+    nutrition_improvement_percentage = models.FloatField(default=0, help_text="% of RDA met")
+    carbon_footprint_score = models.FloatField(default=0, help_text="Estimated carbon impact score")
+    
+    # AI-Generated Insights
+    weekly_insight = models.TextField(blank=True, help_text="AI-generated weekly summary")
+    celebration_message = models.TextField(blank=True, help_text="Motivational message")
+    
+    # Actionable Recommendations
+    action_steps = models.JSONField(
+        default=list,
+        help_text="[{title, description, potentialImpact, sdg_target, category}]"
+    )
+    
+    # Progress Tracking
+    week_over_week_change = models.FloatField(default=0, help_text="Score change from last week")
+    trend = models.CharField(
+        max_length=20,
+        choices=[('improving', 'Improving'), ('stable', 'Stable'), ('declining', 'Declining')],
+        default='stable'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-week_start_date']
+        unique_together = ['user', 'week_start_date']
+    
+    def __str__(self):
+        return f"SDG Score for {self.user.name} - Week of {self.week_start_date}: {self.overall_sdg_score}"

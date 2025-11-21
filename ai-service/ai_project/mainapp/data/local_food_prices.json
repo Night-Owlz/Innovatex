@@ -1,0 +1,72 @@
+{
+    "Rice": {
+        "price": 60,
+        "unit": "kg",
+        "category": "Grains"
+    },
+    "Lentils": {
+        "price": 120,
+        "unit": "kg",
+        "category": "Protein"
+    },
+    "Chicken": {
+        "price": 250,
+        "unit": "kg",
+        "category": "Protein"
+    },
+    "Beef": {
+        "price": 750,
+        "unit": "kg",
+        "category": "Protein"
+    },
+    "Fish (Ruhi)": {
+        "price": 350,
+        "unit": "kg",
+        "category": "Protein"
+    },
+    "Fish (Tilapia)": {
+        "price": 200,
+        "unit": "kg",
+        "category": "Protein"
+    },
+    "Eggs": {
+        "price": 12,
+        "unit": "pcs",
+        "category": "Protein"
+    },
+    "Potatoes": {
+        "price": 40,
+        "unit": "kg",
+        "category": "Vegetables"
+    },
+    "Onions": {
+        "price": 80,
+        "unit": "kg",
+        "category": "Vegetables"
+    },
+    "Spinach": {
+        "price": 30,
+        "unit": "bunch",
+        "category": "Vegetables"
+    },
+    "Milk": {
+        "price": 90,
+        "unit": "liter",
+        "category": "Dairy"
+    },
+    "Bread": {
+        "price": 50,
+        "unit": "pcs",
+        "category": "Grains"
+    },
+    "Bananas": {
+        "price": 10,
+        "unit": "pcs",
+        "category": "Fruits"
+    },
+    "Apples": {
+        "price": 250,
+        "unit": "kg",
+        "category": "Fruits"
+    }
+}

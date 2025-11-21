@@ -1,0 +1,18 @@
+{
+    "Dhaka Cantonment": {
+        "weekly_grams": 400,
+        "weekly_cost": 600
+    },
+    "Gulshan": {
+        "weekly_grams": 500,
+        "weekly_cost": 800
+    },
+    "Dhanmondi": {
+        "weekly_grams": 350,
+        "weekly_cost": 550
+    },
+    "Global": {
+        "weekly_grams": 300,
+        "weekly_cost": 450
+    }
+}

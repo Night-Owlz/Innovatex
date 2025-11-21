@@ -7,4 +7,6 @@ urlpatterns = [
     path('ai/nutrient-gaps', views.analyze_nutrient_gaps, name='analyze_nutrient_gaps'),
     path('ai/optimize-meal-plan', views.optimize_meal_plan, name='optimize_meal_plan'),
     path('ai/calculate-impact-score', views.calculate_impact_score, name='calculate_impact_score'),
+    path('ai/calculate-sdg-score', views.calculate_sdg_score, name='calculate_sdg_score'),
+    path('ai/expiry-risk', views.analyze_expiry_risk, name='analyze_expiry_risk'),
 ]

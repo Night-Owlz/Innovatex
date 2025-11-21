@@ -1,0 +1,101 @@
+{
+    "daily_requirements": {
+        "calories": 2000,
+        "protein": 50,
+        "carbs": 275,
+        "fiber": 30,
+        "vitamin_c": 90,
+        "calcium": 1000,
+        "iron": 18
+    },
+    "meal_nutrition": {
+        "Rice": {
+            "calories": 130,
+            "protein": 2.7,
+            "carbs": 28,
+            "fiber": 0.4
+        },
+        "Lentils": {
+            "calories": 116,
+            "protein": 9,
+            "carbs": 20,
+            "fiber": 8
+        },
+        "Chicken": {
+            "calories": 165,
+            "protein": 31,
+            "carbs": 0,
+            "fiber": 0
+        },
+        "Beef": {
+            "calories": 250,
+            "protein": 26,
+            "carbs": 0,
+            "fiber": 0
+        },
+        "Fish (Ruhi)": {
+            "calories": 150,
+            "protein": 20,
+            "carbs": 0,
+            "fiber": 0
+        },
+        "Fish (Tilapia)": {
+            "calories": 128,
+            "protein": 26,
+            "carbs": 0,
+            "fiber": 0
+        },
+        "Eggs": {
+            "calories": 155,
+            "protein": 13,
+            "carbs": 1.1,
+            "fiber": 0
+        },
+        "Potatoes": {
+            "calories": 77,
+            "protein": 2,
+            "carbs": 17,
+            "fiber": 2.2
+        },
+        "Onions": {
+            "calories": 40,
+            "protein": 1.1,
+            "carbs": 9,
+            "fiber": 1.7
+        },
+        "Spinach": {
+            "calories": 23,
+            "protein": 2.9,
+            "carbs": 3.6,
+            "fiber": 2.2,
+            "vitamin_c": 28,
+            "iron": 2.7
+        },
+        "Milk": {
+            "calories": 61,
+            "protein": 3.2,
+            "carbs": 4.8,
+            "calcium": 125
+        },
+        "Bread": {
+            "calories": 265,
+            "protein": 9,
+            "carbs": 49,
+            "fiber": 2.7
+        },
+        "Bananas": {
+            "calories": 89,
+            "protein": 1.1,
+            "carbs": 23,
+            "fiber": 2.6,
+            "vitamin_c": 8.7
+        },
+        "Apples": {
+            "calories": 52,
+            "protein": 0.3,
+            "carbs": 14,
+            "fiber": 2.4,
+            "vitamin_c": 4.6
+        }
+    }
+}

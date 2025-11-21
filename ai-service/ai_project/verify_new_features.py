@@ -33,7 +33,8 @@ def verify_new_features():
     estimator = WasteEstimator("fake_token")
     estimator.fetch_inventory = MagicMock(return_value=mock_inventory)
     
-    prediction = estimator.estimate_waste(user)
+    result = estimator.estimate_waste(user)
+    prediction = result['prediction']
     
     print(f"Weekly Waste Grams: {prediction.weekly_waste_grams}")
     print(f"Weekly Waste Cost: {prediction.weekly_waste_cost}")
@@ -43,6 +44,18 @@ def verify_new_features():
     # Weekly projection = (1500 / 30) * 7 = 350g
     expected_weekly_grams = (1500 / 30) * 7
     assert float(prediction.weekly_waste_grams) == expected_weekly_grams, f"Expected {expected_weekly_grams}, got {prediction.weekly_waste_grams}"
+    
+    # Verify enhancements
+    # 1. Comparison
+    comparison = result['comparison']
+    print(f"Comparison Status: {comparison['comparison_status']}")
+    print(f"Community Average: {comparison['community_average']}")
+    assert 'community_average' in comparison, "Community comparison missing"
+    
+    # 2. Date Range (Mocking logic check)
+    date_range = result['date_range']
+    print(f"Date Range: {date_range}")
+    
     print("✅ Waste Estimator Verified!")
     
     # --- Verify Nutrient Analyzer ---
