@@ -6,7 +6,8 @@ import { api } from '@/lib/api';
 import { formatDate, getExpirationBadgeClasses, formatExpirationDate } from '@/lib/utils';
 import RecommendationsWidget from '@/components/common/RecommendationsWidget';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, AlertTriangle, ClipboardList, TrendingUp, Calendar, Tag, Sparkles, ArrowRight } from 'lucide-react';
+import { Package, AlertTriangle, ClipboardList, TrendingUp, Calendar, Tag, Sparkles, ArrowRight, ChefHat, Bot, Award, Lightbulb, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
 
 // Skeleton Loading Component
 const StatCardSkeleton = () => (
@@ -43,6 +44,8 @@ export default function DashboardPage() {
   const { user, token } = useAuth();
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [expirationAlerts, setExpirationAlerts] = useState([]);
+  const [loadingAlerts, setLoadingAlerts] = useState(true);
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -56,8 +59,21 @@ export default function DashboardPage() {
       }
     };
 
+    const fetchExpirationAlerts = async () => {
+      try {
+        const response = await api.get('/ai/expiration-risks', { params: { threshold: 70 } });
+        const alerts = response.data.items || response.data || [];
+        setExpirationAlerts(alerts.slice(0, 3)); // Top 3 high-risk items
+      } catch (error) {
+        console.error('Error fetching expiration alerts:', error);
+      } finally {
+        setLoadingAlerts(false);
+      }
+    };
+
     if (token) {
       fetchSummary();
+      fetchExpirationAlerts();
     }
   }, [token]);
 
@@ -111,8 +127,124 @@ export default function DashboardPage() {
             </h1>
           </div>
           <p className="text-muted-foreground text-sm ml-9">
-            Here's what's happening with your food management
+            Here&apos;s what&apos;s happening with your food management
           </p>
+        </div>
+      </div>
+
+      {/* Expiration Alerts - High Priority */}
+      {!loadingAlerts && expirationAlerts.length > 0 && (
+        <div className="bg-gradient-to-br from-red-500/10 to-orange-500/10 border border-red-500/30 rounded-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              <h3 className="font-semibold text-red-500">High-Risk Expiration Alerts</h3>
+            </div>
+            <Link 
+              href="/inventory?filter=expiring"
+              className="text-sm text-red-500 hover:text-red-600 flex items-center gap-1 transition-colors"
+            >
+              View All Alerts
+              <ExternalLink className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+          <div className="grid md:grid-cols-3 gap-4">
+            {expirationAlerts.map((alert, index) => (
+              <div 
+                key={index}
+                className="bg-card border border-red-500/40 rounded-lg p-4 hover:border-red-500/60 transition-colors"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-semibold text-base">{alert.item}</h4>
+                  <span className="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
+                    {alert.riskScore}
+                  </span>
+                </div>
+                <div className="space-y-1 text-sm mb-3">
+                  <p className="text-muted-foreground">
+                    <span className="font-medium text-red-500">
+                      {alert.daysUntilExpiry < 0 ? 'Expired' : `${alert.daysUntilExpiry} days left`}
+                    </span>
+                  </p>
+                  <p className="text-muted-foreground">
+                    {alert.quantity} {alert.unit} • {alert.category}
+                  </p>
+                </div>
+                <p className="text-xs text-muted-foreground italic bg-muted/50 p-2 rounded">
+                  💡 {alert.recommendation}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Quick AI Actions */}
+      <div className="bg-gradient-to-br from-lime-500/5 to-emerald-500/5 border border-lime-500/20 rounded-lg p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="h-5 w-5 text-lime-500" />
+          <h3 className="font-semibold">AI-Powered Tools</h3>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Link 
+            href="/insights"
+            className="group bg-card border border-border hover:border-blue-500/50 rounded-lg p-5 transition-all hover:shadow-lg hover:shadow-blue-500/10"
+          >
+            <div className="flex flex-col items-center text-center gap-3">
+              <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <TrendingUp className="h-6 w-6 text-blue-500" />
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1 group-hover:text-blue-500 transition-colors">Analyze Patterns</h4>
+                <p className="text-xs text-muted-foreground">View consumption insights</p>
+              </div>
+            </div>
+          </Link>
+
+          <Link 
+            href="/meal-planner"
+            className="group bg-card border border-border hover:border-purple-500/50 rounded-lg p-5 transition-all hover:shadow-lg hover:shadow-purple-500/10"
+          >
+            <div className="flex flex-col items-center text-center gap-3">
+              <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <ChefHat className="h-6 w-6 text-purple-500" />
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1 group-hover:text-purple-500 transition-colors">Generate Meal Plan</h4>
+                <p className="text-xs text-muted-foreground">AI-optimized weekly meals</p>
+              </div>
+            </div>
+          </Link>
+
+          <Link 
+            href="/nourishbot"
+            className="group bg-card border border-border hover:border-lime-500/50 rounded-lg p-5 transition-all hover:shadow-lg hover:shadow-lime-500/10"
+          >
+            <div className="flex flex-col items-center text-center gap-3">
+              <div className="w-12 h-12 bg-lime-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Bot className="h-6 w-6 text-lime-500" />
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1 group-hover:text-lime-500 transition-colors">Chat with NourishBot</h4>
+                <p className="text-xs text-muted-foreground">Ask food questions</p>
+              </div>
+            </div>
+          </Link>
+
+          <Link 
+            href="/impact"
+            className="group bg-card border border-border hover:border-orange-500/50 rounded-lg p-5 transition-all hover:shadow-lg hover:shadow-orange-500/10"
+          >
+            <div className="flex flex-col items-center text-center gap-3">
+              <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Award className="h-6 w-6 text-orange-500" />
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1 group-hover:text-orange-500 transition-colors">View Impact Score</h4>
+                <p className="text-xs text-muted-foreground">Track sustainability</p>
+              </div>
+            </div>
+          </Link>
         </div>
       </div>
 
