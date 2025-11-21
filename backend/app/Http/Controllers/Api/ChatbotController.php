@@ -27,6 +27,22 @@ class ChatbotController extends Controller
     private const API_TIMEOUT = 30;
 
     /**
+     * Model priority list - will try models in order until one succeeds
+     */
+    private const MODEL_PRIORITY = [
+        'x-ai/grok-4.1-fast',
+        'x-ai/grok-4.1-fast:free',
+        'nvidia/nemotron-nano-12b-v2-vl:free',
+        'mistralai/mistral-small-3.2-24b-instruct:free',
+        'qwen/qwen2.5-vl-32b-instruct:free',
+        'mistralai/mistral-small-3.1-24b-instruct:free',
+        'google/gemma-3-4b-it:free',
+        'google/gemma-3-12b-it:free',
+        'google/gemma-3-27b-it:free',
+        'google/gemini-2.0-flash-exp:free',
+    ];
+
+    /**
      * Send message to chatbot and get response
      *
      * @param Request $request
@@ -60,8 +76,10 @@ class ChatbotController extends Controller
             // Build messages array for API
             $apiMessages = $this->buildApiMessages($systemPrompt, $messages, $userMessage);
 
-            // Call OpenRouter API
-            $botReply = $this->callOpenRouterAPI($apiMessages);
+            // Call OpenRouter API with fallback
+            $result = $this->callOpenRouterAPI($apiMessages);
+            $botReply = $result['reply'];
+            $modelUsed = $result['model'];
 
             // Add user message and bot reply to session
             $messages[] = [
@@ -89,6 +107,7 @@ class ChatbotController extends Controller
                 'reply' => $botReply,
                 'sessionId' => $session->session_id,
                 'timestamp' => Carbon::now()->toIso8601String(),
+                'model' => $modelUsed,
             ], 200);
 
         } catch (ValidationException $e) {
@@ -305,14 +324,82 @@ class ChatbotController extends Controller
             ? "The user has a household size of {$context['household_size']} people."
             : "The user lives alone.";
 
-        return "You are NourishBot, an AI assistant helping users reduce food waste and improve nutrition. " .
-               "{$householdText} " .
-               "The user currently has: {$inventoryText}. " .
-               "Recently consumed: {$recentLogsText}. " .
-               "Dietary preferences: {$preferencesText}. " .
-               "Provide practical, concise advice in 2-3 sentences. Be friendly and action-oriented. " .
-               "Focus on reducing food waste, suggesting recipes using available ingredients, " .
-               "and promoting balanced nutrition.";
+        $knowledgeBase = $this->getKnowledgeBase();
+
+        return "You are NourishBot, a multi-capability AI food assistant specializing in:\n" .
+               "1. Food Waste Reduction - Help users minimize waste through smart storage and planning\n" .
+               "2. Nutrition Balancing - Provide balanced meal suggestions and nutritional guidance\n" .
+               "3. Budget Meal Planning - Suggest affordable, cost-effective meal options\n" .
+               "4. Creative Leftover Transformation - Turn leftovers into exciting new meals\n" .
+               "5. Local Food Sharing - Guide users on community food sharing programs\n" .
+               "6. Environmental Impact Education - Explain how food choices affect the environment\n\n" .
+               "USER CONTEXT:\n" .
+               "{$householdText}\n" .
+               "Current Inventory: {$inventoryText}\n" .
+               "Recently Consumed: {$recentLogsText}\n" .
+               "Dietary Preferences: {$preferencesText}\n\n" .
+               "KNOWLEDGE BASE:\n{$knowledgeBase}\n\n" .
+               "GUIDELINES:\n" .
+               "- Provide practical, actionable advice\n" .
+               "- Use the user's inventory to suggest recipes when possible\n" .
+               "- Prioritize items that are expiring soon\n" .
+               "- Be friendly, encouraging, and eco-conscious\n" .
+               "- Keep responses concise but informative (2-4 sentences unless asked for detailed info)\n" .
+               "- Use emojis sparingly to make responses engaging";
+    }
+
+    /**
+     * Get knowledge base with tips and guidelines
+     *
+     * @return string
+     */
+    private function getKnowledgeBase(): string
+    {
+        return "FOOD WASTE REDUCTION TIPS:\n" .
+               "- Store leafy greens in airtight containers with paper towels to extend freshness\n" .
+               "- Freeze herbs in olive oil ice cube trays for later use\n" .
+               "- Use FIFO (First In, First Out) method - place newer items behind older ones\n" .
+               "- Bread going stale? Make croutons, breadcrumbs, or French toast\n" .
+               "- Brown bananas are perfect for banana bread or smoothies\n" .
+               "- Vegetable scraps (peels, ends) can be saved for making stock\n" .
+               "- Wilted vegetables can often be revived in ice water\n\n" .
+               "NUTRITION BALANCING:\n" .
+               "- Aim for a color variety in each meal (different colored vegetables = different nutrients)\n" .
+               "- Balanced plate: 1/2 vegetables, 1/4 protein, 1/4 whole grains\n" .
+               "- Protein sources: meat, fish, eggs, beans, lentils, tofu, nuts\n" .
+               "- Don't skip healthy fats: olive oil, avocados, nuts, seeds\n" .
+               "- Fiber-rich foods help with satiety and digestion\n" .
+               "- Stay hydrated - aim for 8 glasses of water daily\n\n" .
+               "BUDGET MEAL PLANNING:\n" .
+               "- Beans and lentils are affordable protein sources\n" .
+               "- Buy seasonal produce - it's cheaper and fresher\n" .
+               "- Plan meals around sale items and bulk purchases\n" .
+               "- Rice, pasta, and potatoes are budget-friendly staples\n" .
+               "- Batch cooking saves time and money\n" .
+               "- Frozen vegetables are nutritious and economical\n" .
+               "- Store brands often match quality at lower prices\n\n" .
+               "LEFTOVER TRANSFORMATION IDEAS:\n" .
+               "- Roasted vegetables → vegetable soup or frittata\n" .
+               "- Rice → fried rice, rice pudding, stuffed peppers\n" .
+               "- Rotisserie chicken → chicken salad, tacos, soup, pot pie\n" .
+               "- Pasta → pasta bake, pasta salad\n" .
+               "- Mashed potatoes → potato pancakes, shepherd's pie topping\n" .
+               "- Bread → bread pudding, panzanella salad, croutons\n\n" .
+               "LOCAL FOOD SHARING:\n" .
+               "- Look for food banks and community fridges in your area\n" .
+               "- Apps like Olio, Too Good To Go connect people with surplus food\n" .
+               "- Community gardens often share excess produce\n" .
+               "- Meal sharing programs connect home cooks with neighbors\n" .
+               "- Food rescue organizations pick up surplus from restaurants/stores\n" .
+               "- Join or start a neighborhood food swap\n\n" .
+               "ENVIRONMENTAL IMPACT FACTS:\n" .
+               "- Food waste generates 8-10% of global greenhouse gas emissions\n" .
+               "- Animal agriculture uses 77% of agricultural land but provides only 18% of calories\n" .
+               "- Eating local, seasonal produce reduces carbon footprint from transportation\n" .
+               "- Plant-based meals generally have lower environmental impact\n" .
+               "- Food waste in landfills produces methane, a potent greenhouse gas\n" .
+               "- Composting food scraps reduces waste and creates nutrient-rich soil\n" .
+               "- Reducing meat consumption by 50% can cut diet-related emissions by 35%";
     }
 
     /**
@@ -352,13 +439,13 @@ class ChatbotController extends Controller
     }
 
     /**
-     * Call OpenRouter API to get bot response
+     * Call OpenRouter API to get bot response with automatic model fallback
      *
      * @param array $messages
-     * @return string
+     * @return array ['reply' => string, 'model' => string]
      * @throws \Exception
      */
-    private function callOpenRouterAPI(array $messages): string
+    private function callOpenRouterAPI(array $messages): array
     {
         $apiKey = config('services.openrouter.api_key');
         $siteUrl = config('services.openrouter.site_url', config('app.url'));
@@ -368,42 +455,65 @@ class ChatbotController extends Controller
             throw new \Exception('OpenRouter API key not configured');
         }
 
-        try {
-            $response = Http::timeout(self::API_TIMEOUT)
-                ->withHeaders([
-                    'Authorization' => 'Bearer ' . $apiKey,
-                    'Content-Type' => 'application/json',
-                    'HTTP-Referer' => $siteUrl,
-                    'X-Title' => $siteName,
-                ])
-                ->post('https://openrouter.ai/api/v1/chat/completions', [
-                    'model' => 'meta-llama/llama-3.2-3b-instruct:free',
-                    'messages' => $messages,
-                ]);
+        $lastError = null;
+        
+        // Try each model in priority order
+        foreach (self::MODEL_PRIORITY as $model) {
+            try {
+                Log::info('Attempting to use model: ' . $model);
+                
+                $response = Http::timeout(self::API_TIMEOUT)
+                    ->withHeaders([
+                        'Authorization' => 'Bearer ' . $apiKey,
+                        'Content-Type' => 'application/json',
+                        'HTTP-Referer' => $siteUrl,
+                        'X-Title' => $siteName,
+                    ])
+                    ->post('https://openrouter.ai/api/v1/chat/completions', [
+                        'model' => $model,
+                        'messages' => $messages,
+                        'temperature' => 0.7,
+                        'max_tokens' => 500,
+                    ]);
 
-            if (!$response->successful()) {
-                Log::error('OpenRouter API Error', [
+                if ($response->successful()) {
+                    $data = $response->json();
+
+                    if (isset($data['choices'][0]['message']['content'])) {
+                        Log::info('Successfully used model: ' . $model);
+                        return [
+                            'reply' => $data['choices'][0]['message']['content'],
+                            'model' => $model,
+                        ];
+                    }
+                }
+                
+                // Log the error and try next model
+                $lastError = 'Model ' . $model . ' returned invalid response';
+                Log::warning($lastError, [
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]);
-                throw new \Exception('OpenRouter API returned error: ' . $response->status());
+                
+            } catch (\Illuminate\Http\Client\ConnectionException $e) {
+                $lastError = 'Connection failed for model ' . $model;
+                Log::warning($lastError . ': ' . $e->getMessage());
+                continue;
+                
+            } catch (\Illuminate\Http\Client\RequestException $e) {
+                $lastError = 'Request failed for model ' . $model;
+                Log::warning($lastError . ': ' . $e->getMessage());
+                continue;
+                
+            } catch (\Exception $e) {
+                $lastError = 'Error with model ' . $model;
+                Log::warning($lastError . ': ' . $e->getMessage());
+                continue;
             }
-
-            $data = $response->json();
-
-            if (!isset($data['choices'][0]['message']['content'])) {
-                throw new \Exception('Invalid response format from OpenRouter API');
-            }
-
-            return $data['choices'][0]['message']['content'];
-
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            Log::error('OpenRouter API Connection Error: ' . $e->getMessage());
-            throw new \Exception('Failed to connect to AI service');
-
-        } catch (\Illuminate\Http\Client\RequestException $e) {
-            Log::error('OpenRouter API Request Error: ' . $e->getMessage());
-            throw new \Exception('AI service request failed');
         }
+        
+        // All models failed
+        Log::error('All AI models failed', ['last_error' => $lastError]);
+        throw new \Exception('All AI models are currently unavailable. Please try again later.');
     }
 }

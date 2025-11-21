@@ -104,4 +104,17 @@ export const api = {
   async getImages(params = {}) {
     return apiMiddleware.get(routes.images.list, { params });
   },
+
+  // Chatbot endpoints
+  async sendChatMessage(data) {
+    return apiMiddleware.post(routes.chatbot.message, data);
+  },
+
+  async getChatSessions() {
+    return apiMiddleware.get(routes.chatbot.sessions);
+  },
+
+  async deleteChatSession(sessionId) {
+    return apiMiddleware.delete(routes.chatbot.deleteSession(sessionId));
+  },
 };

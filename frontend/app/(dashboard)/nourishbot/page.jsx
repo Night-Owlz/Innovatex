@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 
 // Generate UUID v4
 const generateUUID = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     const r = Math.random() * 16 | 0;
     const v = c === 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
@@ -19,6 +19,7 @@ export default function NourishBotPage() {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState(null);
+  const [currentModel, setCurrentModel] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -61,7 +62,7 @@ export default function NourishBotPage() {
 
   const sendMessage = async (e) => {
     e.preventDefault();
-    
+
     if (!inputMessage.trim() || isTyping) return;
 
     const userMessage = {
@@ -77,22 +78,27 @@ export default function NourishBotPage() {
     setIsTyping(true);
 
     try {
-      const response = await api.post('/chatbot/message', {
+      const response = await api.sendChatMessage({
         sessionId: sessionId,
         message: userMessage.content,
       });
 
       const botMessage = {
         role: 'assistant',
-        content: response.data.reply || response.data.message || 'I apologize, but I couldn\'t generate a response.',
+        content: response.reply || response.message || 'I apologize, but I couldn\'t generate a response.',
         timestamp: new Date().toISOString(),
       };
+
+      // Update current model if provided
+      if (response.model) {
+        setCurrentModel(response.model);
+      }
 
       setMessages(prev => [...prev, botMessage]);
     } catch (err) {
       console.error('Error sending message:', err);
-      setError(err.response?.data?.message || 'Failed to send message. Please try again.');
-      
+      setError(err.message || 'Failed to send message. Please try again.');
+
       // Add error message to chat
       const errorMessage = {
         role: 'assistant',
@@ -111,7 +117,7 @@ export default function NourishBotPage() {
       try {
         // Try to delete the old session on the server
         if (sessionId) {
-          await api.delete(`/chatbot/session/${sessionId}`).catch(() => {
+          await api.deleteChatSession(sessionId).catch(() => {
             // Ignore errors if session doesn't exist on server
           });
         }
@@ -140,15 +146,15 @@ export default function NourishBotPage() {
 
     if (diffInMinutes < 1) return 'Just now';
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    
+
     const diffInHours = Math.floor(diffInMinutes / 60);
     if (diffInHours < 24) return `${diffInHours}h ago`;
 
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
@@ -169,14 +175,22 @@ export default function NourishBotPage() {
               <p className="text-xs text-white/80">Your AI Food Assistant</p>
             </div>
           </div>
-          <button
-            onClick={clearChat}
-            className="flex items-center gap-2 px-3 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors text-sm"
-            title="Start new chat"
-          >
-            <Trash2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Clear Chat</span>
-          </button>
+          <div className="flex items-center gap-2">
+            {currentModel && (
+              <div className="hidden sm:flex items-center gap-1 px-2 py-1 bg-white/10 rounded-md text-xs text-white/70" title="Current AI Model">
+                <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+                <span className="font-mono">{currentModel.split('/')[1] || currentModel}</span>
+              </div>
+            )}
+            <button
+              onClick={clearChat}
+              className="flex items-center gap-2 px-3 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors text-sm"
+              title="Start new chat"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Clear Chat</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -189,11 +203,10 @@ export default function NourishBotPage() {
           >
             <div className={`flex gap-2 max-w-[85%] sm:max-w-[75%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
               {/* Avatar */}
-              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                message.role === 'user' 
-                  ? 'bg-gradient-to-br from-blue-500 to-blue-600' 
-                  : 'bg-gradient-to-br from-lime-500 to-emerald-500'
-              }`}>
+              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${message.role === 'user'
+                ? 'bg-gradient-to-br from-blue-500 to-blue-600'
+                : 'bg-gradient-to-br from-lime-500 to-emerald-500'
+                }`}>
                 {message.role === 'user' ? (
                   <User className="h-4 w-4 text-white" />
                 ) : (
@@ -203,11 +216,10 @@ export default function NourishBotPage() {
 
               {/* Message Bubble */}
               <div className={`flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}>
-                <div className={`rounded-2xl px-4 py-3 ${
-                  message.role === 'user'
-                    ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-tr-sm'
-                    : 'bg-muted border border-border text-foreground rounded-tl-sm'
-                }`}>
+                <div className={`rounded-2xl px-4 py-3 ${message.role === 'user'
+                  ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-tr-sm'
+                  : 'bg-muted border border-border text-foreground rounded-tl-sm'
+                  }`}>
                   <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
                     {message.content}
                   </p>

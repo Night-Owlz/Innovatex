@@ -130,6 +130,13 @@ export const routes = {
     upload: '/images/upload',
     list: '/images',
   },
+
+  // Chatbot routes
+  chatbot: {
+    message: '/chatbot/message',
+    sessions: '/chatbot/sessions',
+    deleteSession: (sessionId) => `/chatbot/sessions/${sessionId}`,
+  },
 };
 
 export default apiClient;
