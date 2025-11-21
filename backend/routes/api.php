@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\AIAnalysisController;
 use App\Http\Controllers\Api\OCRController;
 use App\Http\Controllers\Api\MealPlannerController;
 use App\Http\Controllers\Api\ChatbotController;
+use App\Http\Controllers\Api\ImpactScoreController;
+use App\Http\Controllers\Api\WasteController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -68,6 +70,8 @@ Route::prefix('v1')->name('v1.')->group(function () {
             Route::post('analyze-patterns', [AIAnalysisController::class, 'analyzePatterns'])->name('analyze-patterns');
             Route::post('ocr-extract', [OCRController::class, 'extractFromImage'])->name('ocr-extract');
             Route::post('optimize-meal-plan', [MealPlannerController::class, 'optimizeMealPlan'])->name('optimize-meal-plan');
+            Route::get('impact-score', [ImpactScoreController::class, 'calculateScore'])->name('impact-score');
+            Route::get('waste-estimation', [WasteController::class, 'estimation'])->name('waste-estimation');
         });
         
         // Chatbot
