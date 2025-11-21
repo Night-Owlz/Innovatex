@@ -67,27 +67,50 @@ class DashboardController extends Controller
             // Calculate high risk items (top 3) using optimized logic
             $highRiskItems = $this->getHighRiskItems($allInventoryItems, $user->id);
 
+            // Get items expiring soon (within 7 days) with full details for frontend
+            $expiringInventory = (clone $inventoryQuery)
+                ->whereNotNull('expiration_date')
+                ->where('expiration_date', '>=', Carbon::now())
+                ->where('expiration_date', '<=', $sevenDaysFromNow)
+                ->orderBy('expiration_date', 'asc')
+                ->get()
+                ->map(function ($item) {
+                    $daysUntilExpiry = Carbon::now()->diffInDays($item->expiration_date, false);
+                    return [
+                        'id' => $item->id,
+                        'item_name' => $item->item_name,
+                        'quantity' => $item->quantity,
+                        'unit' => $item->unit,
+                        'category' => $item->category,
+                        'purchase_date' => $item->purchase_date?->toDateString(),
+                        'expiration_date' => $item->expiration_date->toDateString(),
+                        'is_expired' => $daysUntilExpiry < 0,
+                        'is_expiring' => $daysUntilExpiry >= 0 && $daysUntilExpiry <= 7,
+                    ];
+                });
+
             // Generate recommended resources based on consumption categories
             $recommendedResources = $this->getRecommendedResources($recentLogs);
 
             return response()->json([
                 'message' => 'Dashboard summary retrieved successfully',
-                'totalInventoryItems' => $totalInventoryItems,
-                'itemsExpiringSoon' => $itemsExpiringSoon,
-                'recentLogsCount' => $recentLogsCount,
-                'recentLogs' => $recentLogs->map(function ($log) {
+                'total_inventory_items' => $totalInventoryItems,
+                'items_expiring_soon' => $itemsExpiringSoon,
+                'recent_logs_count' => $recentLogsCount,
+                'recent_logs' => $recentLogs->map(function ($log) {
                     return [
                         'id' => $log->id,
-                        'itemName' => $log->item_name,
+                        'item_name' => $log->item_name,
                         'quantity' => $log->quantity,
                         'unit' => $log->unit,
                         'category' => $log->category,
-                        'consumptionDate' => $log->consumption_date->toDateString(),
+                        'consumption_date' => $log->consumption_date->toDateString(),
                         'notes' => $log->notes,
                     ];
                 }),
-                'highRiskItems' => $highRiskItems,
-                'recommendedResources' => $recommendedResources,
+                'expiring_inventory' => $expiringInventory,
+                'high_risk_items' => $highRiskItems,
+                'recommended_resources' => $recommendedResources,
             ], 200);
 
         } catch (\Exception $e) {

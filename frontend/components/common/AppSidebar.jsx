@@ -51,6 +51,12 @@ export default function AppSidebar() {
       description: 'Overview & Stats'
     },
     {
+      href: '/insights',
+      label: 'Insights',
+      icon: TrendingUp,
+      description: 'AI Analysis'
+    },
+    {
       href: '/inventory',
       label: 'Inventory',
       icon: Package,
