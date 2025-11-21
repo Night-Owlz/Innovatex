@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\FoodItemController;
 use App\Http\Controllers\Api\ResourceController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ImageUploadController;
+use App\Http\Controllers\Api\AIAnalysisController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -57,6 +58,11 @@ Route::prefix('v1')->name('v1.')->group(function () {
         Route::prefix('images')->name('images.')->group(function () {
             Route::post('upload', [ImageUploadController::class, 'upload'])->name('upload');
             Route::get('/', [ImageUploadController::class, 'index'])->name('index');
+        });
+        
+        // AI Analysis
+        Route::prefix('ai')->name('ai.')->group(function () {
+            Route::post('analyze-patterns', [AIAnalysisController::class, 'analyzePatterns'])->name('analyze-patterns');
         });
     });
 });
