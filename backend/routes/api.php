@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ResourceController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ImageUploadController;
 use App\Http\Controllers\Api\AIAnalysisController;
+use App\Http\Controllers\Api\OCRController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -63,6 +64,7 @@ Route::prefix('v1')->name('v1.')->group(function () {
         // AI Analysis
         Route::prefix('ai')->name('ai.')->group(function () {
             Route::post('analyze-patterns', [AIAnalysisController::class, 'analyzePatterns'])->name('analyze-patterns');
+            Route::post('ocr-extract', [OCRController::class, 'extractFromImage'])->name('ocr-extract');
         });
     });
 });
