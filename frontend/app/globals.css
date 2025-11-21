@@ -232,7 +232,7 @@ body {
 
 /* Premium Glass Effect */
 .glass {
-  background: rgba(19, 27, 46, 0.8);
+  background: #061f197a;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(148, 163, 184, 0.1);
@@ -323,10 +323,7 @@ body {
 
 /* Premium Button */
 .btn-premium {
-  background: linear-gradient(135deg, #B7FE58 0%, #9FE040 100%);
-  box-shadow:
-    0 4px 16px rgba(183, 254, 88, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #006023 0%, #030f10 100%);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
