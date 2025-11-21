@@ -18,6 +18,7 @@ import {
   Bot,
   ScanLine,
   Award,
+  Bell,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -82,6 +83,12 @@ export default function AppSidebar() {
       label: 'OCR Scanner',
       icon: ScanLine,
       description: 'Extract from Images'
+    },
+    {
+      href: '/alerts',
+      label: 'Expiration Alerts',
+      icon: Bell,
+      description: 'Monitor Expiring Items'
     },
     {
       href: '/inventory',

@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import AppSidebar from '@/components/common/AppSidebar';
 import ThemeToggle from '@/components/common/ThemeToggle';
@@ -12,6 +12,27 @@ import { Separator } from '@/components/ui/separator';
 export default function DashboardLayout({ children }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Get page title based on pathname
+  const getPageTitle = () => {
+    const path = pathname.split('/').pop() || 'dashboard';
+    const titles = {
+      'dashboard': 'Dashboard',
+      'insights': 'Insights',
+      'impact': 'Impact Score',
+      'meal-planner': 'Meal Planner',
+      'nourishbot': 'NourishBot',
+      'ocr-scan': 'OCR Scanner',
+      'alerts': 'Expiration Alerts',
+      'inventory': 'Inventory',
+      'uploads': 'Uploads',
+      'logs': 'Consumption Logs',
+      'resources': 'Resources',
+      'profile': 'Profile',
+    };
+    return titles[path] || 'Dashboard';
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -56,7 +77,7 @@ export default function DashboardLayout({ children }) {
               />
             </a>
             <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-teal-300/70">Dashboard</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-teal-300/70">{getPageTitle()}</p>
               <h1 className="text-lg font-semibold">InnovateX FoodFlow</h1>
             </div>
           </div>
