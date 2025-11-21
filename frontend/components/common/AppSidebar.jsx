@@ -17,6 +17,7 @@ import {
   ChevronRight,
   Bot,
   ScanLine,
+  Award,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -57,6 +58,12 @@ export default function AppSidebar() {
       label: 'Insights',
       icon: TrendingUp,
       description: 'AI Analysis'
+    },
+    {
+      href: '/impact',
+      label: 'Impact Score',
+      icon: Award,
+      description: 'Sustainability Score'
     },
     {
       href: '/meal-planner',
