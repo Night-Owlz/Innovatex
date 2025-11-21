@@ -15,6 +15,7 @@ import {
   Upload,
   Settings,
   ChevronRight,
+  Bot,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -61,6 +62,12 @@ export default function AppSidebar() {
       label: 'Meal Planner',
       icon: ClipboardList,
       description: 'Weekly Meal Plans'
+    },
+    {
+      href: '/nourishbot',
+      label: 'NourishBot',
+      icon: Bot,
+      description: 'AI Chat Assistant'
     },
     {
       href: '/inventory',
