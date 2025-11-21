@@ -119,6 +119,70 @@ INNOVATEX addresses this challenge by providing:
 - Accessible navigation with hamburger menu on mobile
 - Progressive enhancement for optimal performance
 
+## Part 2: AI-Powered Features (Implemented)
+
+### Features
+
+✅ **AI Consumption Pattern Analyzer**: Analyzes weekly trends, detects over/under consumption, predicts waste risks
+
+✅ **Meal Optimization Engine**: Generates budget-friendly meal plans using inventory items, creates shopping lists
+
+✅ **OCR Receipt Scanning**: Extracts food items from receipts (simulated for demo, ready for Tesseract integration)
+
+✅ **Expiration Risk Prediction**: Scores inventory items by waste risk, provides recommendations
+
+✅ **Waste Estimation Model**: Calculates waste metrics, compares to community averages, projects yearly impact
+
+✅ **NourishBot Chatbot**: AI assistant powered by OpenRouter API (meta-llama/llama-3.2-3b-instruct:free) for personalized advice
+
+✅ **SDG Impact Scoring**: Evaluates user progress on SDG 2 & 12, provides actionable insights
+
+### New Pages
+
+- `/insights` - AI consumption pattern analysis with weekly trends, over/under consumption alerts, waste risk items
+- `/meal-planner` - Weekly meal plan generator with FIFO inventory usage, shopping list, and nutrition summary
+- `/nourishbot` - AI chatbot for food advice with persistent chat sessions
+- `/ocr-scan` - Receipt scanning and automatic item extraction to inventory
+- `/impact` - SDG impact score dashboard with breakdown by category and action steps
+- `/alerts` - Expiration risk alerts with filtering and quick actions
+
+### Technical Implementation
+
+- All AI logic implemented in Laravel controllers (no separate AI service required for demo)
+- OpenRouter API integration for chatbot using meta-llama/llama-3.2-3b-instruct:free model
+- Rule-based algorithms for pattern analysis, waste prediction, and impact scoring
+- Extensible architecture ready for ML model integration
+- Real-time calculations based on actual user data (no dummy data)
+
+### Setup - Part 2 Additions
+
+#### Environment Variables
+
+Add to `backend/.env`:
+
+```env
+# OpenRouter API Configuration
+OPENROUTER_API_KEY=your_openrouter_key_here
+OPENROUTER_SITE_URL=http://localhost:3000
+OPENROUTER_SITE_NAME=InnovateX FoodFlow
+```
+
+#### Database Migrations
+
+Run new Part 2 migrations:
+
+```bash
+cd backend
+php artisan migrate  # This will create: consumption_patterns, meal_plans, chat_sessions, impact_scores, waste_predictions tables
+```
+
+#### External APIs
+
+**OpenRouter API**: Used for NourishBot chatbot
+- Get API key: https://openrouter.ai/keys
+- Model: meta-llama/llama-3.2-3b-instruct:free (no cost)
+- Features: Context-aware responses, conversation history, inventory integration
+
 
 ## Technology Stack
 
