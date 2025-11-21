@@ -1,0 +1,1643 @@
+{
+  "agentName": "INNOVATEX Food Management Platform Developer - Part 2 AI Extension",
+  "version": "2.0.0",
+  "hackathonContext": {
+    "name": "INNOVATEX Hackathon - Part 2 (10-Hour Onsite Challenge)",
+    "theme": "AI-Powered Food Management & Sustainability Platform",
+    "timeLimit": "10 hours",
+    "teamStructure": {
+      "partner1": "Python expert + Frontend (Next.js)",
+      "partner2": "Laravel backend expert + Python (intermediate)",
+      "collaboration": "Clear API contracts, parallel development"
+    },
+    "evaluationCriteria": "AI implementation quality, technical soundness, real impact on SDG goals, completeness"
+  },
+  "codeStyle": {
+    "philosophy": "Same as Part 1 - production-grade, human-like code with minimal comments",
+    "commenting": {
+      "strategy": "MINIMAL_PROFESSIONAL",
+      "aiSpecificRules": [
+        "NO comments explaining what AI models do (self-evident)",
+        "ONLY comment complex AI logic, hyperparameters, or non-obvious algorithms",
+        "Document API integration quirks or rate limits",
+        "Explain why specific prompts are structured a certain way (if complex)"
+      ],
+      "examples": {
+        "avoid": [
+          "// Call OpenAI API",
+          "// This function predicts waste",
+          "// Calculate nutrition score"
+        ],
+        "acceptable": [
+          "// GPT-3.5 has 4096 token limit; truncating conversation history to last 5 exchanges",
+          "// Using temperature=0.7 for creative recipe suggestions vs 0.3 for factual nutrition",
+          "// Tesseract OCR accuracy degrades with rotation >15 degrees"
+        ]
+      }
+    }
+  },
+  "techStack": {
+    "frontend": {
+      "framework": "Next.js 14+ with App Router (existing from Part 1)",
+      "newPages": [
+        "AI Insights Dashboard",
+        "Meal Planner",
+        "NourishBot Chat Interface",
+        "Impact Score Page"
+      ],
+      "newComponents": [
+        "ConsumptionHeatmap",
+        "MealPlanCard",
+        "ChatMessage",
+        "ImpactScoreGauge",
+        "ExpirationAlerts",
+        "OCRUploadPreview"
+      ]
+    },
+    "backend": {
+      "framework": "Laravel 10.x (existing from Part 1)",
+      "newControllers": [
+        "AIAnalysisController",
+        "MealPlannerController",
+        "ChatbotController",
+        "OCRController",
+        "ImpactScoreController"
+      ],
+      "newModels": [
+        "ConsumptionPattern",
+        "MealPlan",
+        "ChatSession",
+        "ImpactScore",
+        "WastePrediction"
+      ],
+      "integrations": [
+        "Python AI service (HTTP client)",
+        "OpenAI/Anthropic API (for NourishBot)",
+        "Tesseract OCR or Google Vision API"
+      ]
+    },
+    "aiService": {
+      "framework": "Flask or FastAPI (lightweight REST API)",
+      "language": "Python 3.10+",
+      "structure": {
+        "app.py or main.py": "Main Flask/FastAPI application",
+        "services/": [
+          "consumption_analyzer.py",
+          "meal_optimizer.py",
+          "waste_predictor.py",
+          "nutrition_analyzer.py",
+          "impact_scorer.py"
+        ],
+        "models/": ["ml_models/ (if using sklearn or simple models)"],
+        "utils/": ["data_processor.py", "prompt_templates.py"],
+        "config/": ["settings.py (API keys, model configs)"]
+      },
+      "libraries": {
+        "core": "flask/fastapi, requests, python-dotenv",
+        "dataProcessing": "numpy, pandas",
+        "ai": "openai (for GPT integration), transformers (optional, if using Hugging Face)",
+        "ocr": "pytesseract, Pillow (PIL)",
+        "optional": "scikit-learn (for simple ML models)"
+      },
+      "deployment": "Runs on localhost:5000, Laravel communicates via HTTP"
+    },
+    "externalAPIs": {
+      "openai": {
+        "purpose": "NourishBot chatbot, meal optimization, creative suggestions",
+        "models": "gpt-3.5-turbo (cost-effective) or gpt-4 (better quality)",
+        "rateLimit": "Document in README, implement exponential backoff"
+      },
+      "tesseract": {
+        "purpose": "OCR for receipts and food labels",
+        "installation": "System dependency, document in README",
+        "alternative": "Google Vision API (requires API key and billing)"
+      }
+    }
+  },
+  "part2Requirements": {
+    "1_consumptionPatternAnalyzer": {
+      "description": "Analyze weekly trends, detect patterns, predict waste",
+      "implementation": {
+        "dataInput": "User's consumption_logs and inventories from last 30-90 days",
+        "analysis": [
+          "Group by day_of_week, category to find patterns",
+          "Calculate consumption frequency per category",
+          "Detect over-consumption (avg > 2x typical)",
+          "Detect under-consumption (categories missing for 14+ days)",
+          "Predict waste: items in inventory with low consumption frequency + approaching expiry"
+        ],
+        "algorithm": "Pandas aggregations + simple rules or LLM-based reasoning",
+        "output": {
+          "weeklyTrends": "{ day: { category: quantity } }",
+          "overConsumption": "[ { category, avgQuantity, typicalRange } ]",
+          "underConsumption": "[ { category, daysSinceLastLog } ]",
+          "wasteRiskItems": "[ { item, riskScore (0-100), reason } ]",
+          "imbalancedPatterns": "[ { category, status: 'low' | 'high', recommendation } ]"
+        },
+        "heatmapData": "Matrix of [day_of_week][category] = quantity for visualization",
+        "endpoint": "POST /api/ai/analyze-patterns",
+        "responsibleService": "Python AI service"
+      },
+      "frontendIntegration": {
+        "page": "/dashboard or /insights",
+        "components": [
+          "ConsumptionHeatmap (using recharts or d3)",
+          "PatternInsightCards",
+          "WasteRiskAlerts"
+        ]
+      }
+    },
+    "2_mealOptimizationEngine": {
+      "description": "Generate weekly meal plan fitting budget, using inventory, ensuring nutrition",
+      "implementation": {
+        "dataInput": {
+          "userBudget": "from user profile",
+          "currentInventory": "all items from inventories table",
+          "dietaryPreferences": "from user profile",
+          "nutritionRequirements": "dummy rules (e.g., min 5 servings veggies/week)"
+        },
+        "algorithm": {
+          "approach": "Rule-based optimization + LLM enhancement",
+          "steps": [
+            "1. Prioritize inventory items by expiration date (FIFO)",
+            "2. Create base meal structure (breakfast, lunch, dinner × 7 days)",
+            "3. Fill meals using inventory items first",
+            "4. Calculate remaining budget after using inventory",
+            "5. Use LLM to suggest additional meals within budget",
+            "6. Validate nutrition requirements (simple rules)",
+            "7. Generate shopping list for missing items"
+          ],
+          "optimizationGoals": [
+            "Minimize waste (use inventory items)",
+            "Stay within budget",
+            "Meet min nutrition (vegetables, protein, grains)",
+            "Respect dietary preferences"
+          ]
+        },
+        "output": {
+          "mealPlan": "[ { day, mealType, dishName, ingredients: [ { item, quantity, source: 'inventory' | 'purchase' } ] } ]",
+          "shoppingList": "[ { item, quantity, estimatedCost } ]",
+          "totalCost": "number",
+          "budgetRemaining": "number",
+          "nutritionSummary": "{ vegetables: X servings, protein: Y servings, ... }"
+        },
+        "endpoint": "POST /api/ai/optimize-meal-plan",
+        "requestBody": {
+          "userId": "integer",
+          "weekStartDate": "date",
+          "customPreferences": "string (optional)"
+        },
+        "responsibleService": "Python AI service (calls OpenAI for creative meal suggestions)"
+      },
+      "llmIntegration": {
+        "purpose": "Generate creative meals within constraints",
+        "prompt": "You are a meal planning assistant. Given these inventory items: {items}, budget: ${budget}, dietary preferences: {prefs}, suggest 7 days of meals. Prioritize using inventory items. Output JSON format: [{day, meals: [{type, name, ingredients}]}]",
+        "temperature": 0.7,
+        "maxTokens": 1500
+      },
+      "frontendIntegration": {
+        "page": "/meal-planner",
+        "features": [
+          "Week view calendar with meals",
+          "Click meal to see ingredients and source (inventory/purchase)",
+          "Shopping list view with total cost",
+          "Regenerate plan button",
+          "Export to PDF or print"
+        ]
+      }
+    },
+    "3_ocrFoodInput": {
+      "description": "Extract text from receipts/labels, parse food items, add to inventory",
+      "implementation": {
+        "ocrEngine": {
+          "option1": "Tesseract OCR (free, local)",
+          "option2": "Google Vision API (paid, more accurate)",
+          "recommendation": "Start with Tesseract, fallback to Google Vision if needed"
+        },
+        "workflow": [
+          "1. User uploads image (from Part 1 image upload feature)",
+          "2. Laravel sends image to Python AI service",
+          "3. Python runs OCR to extract text",
+          "4. Python parses text to identify food items, quantities, dates",
+          "5. Return structured data to Laravel",
+          "6. Laravel presents data to user for confirmation",
+          "7. User confirms/edits, then items added to inventory"
+        ],
+        "parsing": {
+          "approach": "Regex patterns + LLM fallback for ambiguous text",
+          "patterns": [
+            "Item names: Look for common food keywords",
+            "Quantities: Match numbers followed by units (kg, g, L, ml, pcs)",
+            "Dates: Match date formats (DD/MM/YYYY, MM-DD-YYYY, etc.)",
+            "Prices: Match currency symbols with numbers"
+          ],
+          "llmEnhancement": "If regex fails, send OCR text to LLM: 'Extract food items with quantities from: {text}. Return JSON: [{item, quantity, unit}]'"
+        },
+        "output": {
+          "extractedText": "string (raw OCR output)",
+          "parsedItems": "[ { itemName, quantity, unit, expirationDate (optional), confidence: 0-1 } ]",
+          "requiresConfirmation": "boolean"
+        },
+        "endpoint": "POST /api/ai/ocr-extract",
+        "requestBody": {
+          "imageId": "integer (from image_uploads table)",
+          "extractionType": "receipt | food_label"
+        },
+        "responsibleService": "Python AI service"
+      },
+      "pythonImplementation": {
+        "libraries": "pytesseract, Pillow, re, openai (optional)",
+        "preprocessing": [
+          "Convert to grayscale",
+          "Apply thresholding for better contrast",
+          "Deskew if rotated",
+          "Resize if too large"
+        ],
+        "code_pattern": "image = Image.open(file_path); text = pytesseract.image_to_string(image); items = parse_food_items(text)"
+      },
+      "frontendIntegration": {
+        "flow": [
+          "1. User uploads image on /inventory page",
+          "2. Show loading spinner: 'Extracting items...'",
+          "3. Display extracted items in confirmation modal",
+          "4. User can edit item names, quantities before saving",
+          "5. Click 'Add to Inventory' to save"
+        ],
+        "errorHandling": "If extraction fails, show raw text with manual entry form"
+      }
+    },
+    "4_expirationRiskPrediction": {
+      "description": "Predict which items will expire soon, prioritize consumption",
+      "implementation": {
+        "dataInput": [
+          "Inventory items with purchase_date, expiration_date",
+          "User consumption patterns (from analyzer)",
+          "Item category and typical_expiration_days from food_items",
+          "Seasonality data (dummy: summer = faster expiry for fresh items)"
+        ],
+        "riskScoring": {
+          "factors": [
+            "daysUntilExpiry: Lower = higher risk",
+            "consumptionFrequency: If user rarely consumes this category, higher risk",
+            "quantity: Large quantities harder to consume in time",
+            "seasonality: Fresh items in warm weather expire faster (dummy rule)"
+          ],
+          "formula": "riskScore = (100 - daysUntilExpiry*5) + (30 if lowConsumptionFreq) + (10 if largeQuantity) + (15 if warmSeason && freshCategory)",
+          "normalization": "Clamp between 0-100"
+        },
+        "prioritization": {
+          "algorithm": "FIFO + AI ranking",
+          "steps": [
+            "1. Calculate risk score for each inventory item",
+            "2. Sort by risk score descending",
+            "3. Generate priority list with reasons"
+          ]
+        },
+        "output": {
+          "highRiskItems": "[ { item, riskScore, daysUntilExpiry, reason, recommendation } ]",
+          "priorityOrder": "[ itemIds sorted by urgency ]"
+        },
+        "endpoint": "GET /api/ai/expiration-risks",
+        "responsibleService": "Python AI service or Laravel (simple enough for either)"
+      },
+      "alertSystem": {
+        "triggers": [
+          "Item riskScore > 70: Show red alert on dashboard",
+          "Item riskScore 50-70: Show yellow warning",
+          "Daily check at 8 AM (Laravel scheduler or cron)"
+        ],
+        "notification": "Display in-app alerts, optionally email/push (bonus)"
+      },
+      "frontendIntegration": {
+        "locations": [
+          "Dashboard: Top alerts section",
+          "Inventory page: Badge on high-risk items",
+          "Dedicated /expiration-alerts page"
+        ],
+        "display": "Item name, days until expiry, risk badge (red/yellow), suggested action (e.g., 'Use in tomorrow's meal')"
+      }
+    },
+    "5_wasteEstimationModel": {
+      "description": "Estimate wasted food and money, show projections, compare to community",
+      "implementation": {
+        "dataInput": [
+          "Historical inventory items that expired (track expired_items separately or infer)",
+          "Consumption logs",
+          "Purchase data from inventory"
+        ],
+        "wasteCalculation": {
+          "approach": "Track items removed from inventory due to expiry vs consumption",
+          "formula": "wastedGrams = sum(inventory items where expirationDate < today && not in consumption_logs)",
+          "moneyLoss": "wastedGrams * averageCostPerGram (from food_items or user's purchase data)"
+        },
+        "projections": {
+          "weekly": "Extrapolate current week's waste trend",
+          "monthly": "Average last 4 weeks",
+          "algorithm": "Simple linear projection or moving average"
+        },
+        "communityComparison": {
+          "dummyData": "Average household wastes 120kg/year or $1200/year (based on real studies)",
+          "userComparison": "Your waste: X kg/year (Y% of community average)"
+        },
+        "output": {
+          "currentWeekWaste": "{ grams, cost }",
+          "currentMonthWaste": "{ grams, cost }",
+          "projectedYearlyWaste": "{ grams, cost }",
+          "communityAverage": "{ grams, cost }",
+          "comparison": "{ percentageOfAverage, status: 'below' | 'above' }"
+        },
+        "endpoint": "GET /api/ai/waste-estimation",
+        "responsibleService": "Laravel or Python (simple calculations, can be Laravel)"
+      },
+      "frontendIntegration": {
+        "page": "/impact or /dashboard",
+        "visualization": [
+          "Bar chart: Weekly waste over last 4 weeks",
+          "Pie chart: Waste by category",
+          "Comparison gauge: User vs community average",
+          "Projected yearly impact (kg and $)"
+        ]
+      }
+    },
+    "6_nourishBot": {
+      "description": "Multi-capability LLM chatbot for food advice, nutrition, budgeting, waste reduction",
+      "implementation": {
+        "llmProvider": {
+          "option1": "OpenAI GPT-3.5-turbo (recommended for cost/quality balance)",
+          "option2": "Anthropic Claude (if budget allows)",
+          "option3": "Hugging Face models (free but need GPU, complex setup)"
+        },
+        "capabilities": [
+          "Food waste reduction advice",
+          "Nutrition balancing tips",
+          "Budget meal planning suggestions",
+          "Creative leftover transformation ideas",
+          "Local food sharing guidance",
+          "Environmental impact explanations"
+        ],
+        "contextualMemory": {
+          "approach": "Session-based conversation history",
+          "storage": "Store chat_sessions table with messages: [ { role: 'user' | 'assistant', content, timestamp } ]",
+          "retrieval": "Load last 10 messages for context"
+        },
+        "systemPrompt": {
+          "template": "You are NourishBot, an AI assistant helping users reduce food waste, improve nutrition, and manage budgets. You have access to the user's inventory: {inventory}, recent consumption: {recentLogs}, and dietary preferences: {preferences}. Provide practical, actionable advice. Be concise and friendly.",
+          "enhancement": "Include relevant user data in each request for personalization"
+        },
+        "retrieval": {
+          "approach": "Match user query to resources table",
+          "implementation": "If user asks about storage, query resources WHERE category='storage_tips', include top 2 in context",
+          "optional": "Build simple vector embeddings for semantic search (advanced)"
+        },
+        "output": {
+          "message": "string (bot response)",
+          "sources": "[ { resourceId, title } ] (if used retrieval)",
+          "suggestedActions": "[ { action, description } ] (optional, e.g., 'Add tomatoes to shopping list')"
+        },
+        "endpoint": "POST /api/chatbot/message",
+        "requestBody": {
+          "sessionId": "string (UUID)",
+          "message": "string"
+        },
+        "responsibleService": "Laravel backend (calls OpenAI directly or via Python service)"
+      },
+      "pythonOrLaravelChoice": {
+        "recommendation": "Implement in Laravel for simplicity (OpenAI PHP SDK available)",
+        "alternative": "Python service if partner prefers (requests library to OpenAI API)"
+      },
+      "openaiIntegration": {
+        "apiCall": "POST https://api.openai.com/v1/chat/completions",
+        "payload": {
+          "model": "gpt-3.5-turbo",
+          "messages": [
+            {"role": "system", "content": "{systemPrompt}"},
+            {"role": "user", "content": "{userMessage}"}
+          ],
+          "temperature": 0.7,
+          "max_tokens": 500
+        },
+        "errorHandling": [
+          "Rate limit: Implement exponential backoff",
+          "API errors: Return friendly error message to user",
+          "Timeout: Set 30s timeout, show 'Bot is thinking...' message"
+        ]
+      },
+      "frontendIntegration": {
+        "page": "/nourishbot or /chat",
+        "ui": {
+          "chatWindow": "Message list (scrollable)",
+          "inputBox": "Text input with send button",
+          "features": [
+            "Show typing indicator while waiting for response",
+            "Display bot avatar vs user avatar",
+            "Render markdown in bot responses (bold, lists)",
+            "Quick action buttons (e.g., 'Show meal plan', 'Check waste')",
+            "Clear conversation button"
+          ]
+        },
+        "persistence": "Save conversations to chat_sessions table"
+      }
+    },
+    "7_impactScoringEngine": {
+      "description": "Calculate SDG progress score, provide insights and action items",
+      "implementation": {
+        "scoringFactors": {
+          "wasteReduction": {
+            "weight": 40,
+            "calculation": "100 - (userWaste / communityAverage * 100)",
+            "description": "Lower waste = higher score"
+          },
+          "nutritionBalance": {
+            "weight": 30,
+            "calculation": "Based on variety of categories consumed (5+ categories/week = 100, 3-4 = 70, <3 = 40)",
+            "description": "Diverse diet = higher score"
+          },
+          "inventoryUtilization": {
+            "weight": 20,
+            "calculation": "(itemsConsumed / itemsPurchased * 100)",
+            "description": "Using what you buy = higher score"
+          },
+          "sustainablePractices": {
+            "weight": 10,
+            "calculation": "Engagement with resources, using meal planner, checking expiration alerts",
+            "description": "Active participation = higher score"
+          }
+        },
+        "totalScore": "Weighted average of all factors (0-100 scale)",
+        "insights": {
+          "generation": "Use LLM or rule-based",
+          "template": "This week you reduced waste by X%, consumed Y categories, and used Z% of your inventory. {positiveNote}. {improvementSuggestion}."
+        },
+        "actionableSteps": {
+          "examples": [
+            "Add more vegetables to reach balanced diet (potential +10 points)",
+            "Use meal planner to reduce waste (potential +15 points)",
+            "Check expiration alerts daily (potential +5 points)"
+          ],
+          "generation": "Identify lowest-scoring factor, suggest improvements"
+        },
+        "output": {
+          "overallScore": "number (0-100)",
+          "breakdown": "{ wasteReduction, nutritionBalance, inventoryUtilization, sustainablePractices }",
+          "weeklyChange": "number (score change from last week)",
+          "insights": "string (narrative summary)",
+          "actionSteps": "[ { title, description, potentialImpact } ]"
+        },
+        "endpoint": "GET /api/ai/impact-score",
+        "responsibleService": "Python AI service or Laravel"
+      },
+      "weeklyUpdates": {
+        "schedule": "Calculate every Sunday night (Laravel scheduler)",
+        "notification": "Show on dashboard: 'Your SDG score this week: X (+Y from last week)'"
+      },
+      "frontendIntegration": {
+        "page": "/impact or dedicated /sdg-score",
+        "visualization": [
+          "Circular gauge showing overall score",
+          "Breakdown bars for each factor",
+          "Line chart showing score trend over weeks",
+          "Highlight weekly change (+/-)",
+          "Action cards with next steps"
+        ]
+      }
+    }
+  },
+  "bonusFeatures": {
+    "1_localFoodSharing": {
+      "description": "Discover surplus food nearby, connect users",
+      "implementation": {
+        "approach": "Simple location-based matching",
+        "data": {
+          "userLocation": "from user profile (Part 1)",
+          "surplusListings": "New table: food_surplus (user_id, item, quantity, location, available_until)"
+        },
+        "matching": "Query surplus within X km radius using Haversine formula or dummy radius",
+        "features": [
+          "List available surplus nearby",
+          "Map view showing locations (use Leaflet or Google Maps)",
+          "Contact sharing user (show email or in-app message)",
+          "Mark as claimed"
+        ],
+        "endpoint": "GET /api/food-surplus?lat={lat}&lng={lng}&radius={km}",
+        "frontend": "/food-sharing page with list or map"
+      },
+      "priority": "Low (if time permits after core features)"
+    },
+    "2_nutrientGapPrediction": {
+      "description": "Analyze consumption, predict nutrient deficiencies, suggest foods",
+      "implementation": {
+        "nutrientDatabase": "Extend food_items with nutrients: { vitamin_c, iron, protein, fiber, ... } (dummy values)",
+        "analysis": "Sum nutrients from consumption_logs, compare to RDA (Recommended Daily Allowance)",
+        "prediction": "Categories under 70% RDA = likely deficiency",
+        "suggestions": "Foods high in deficient nutrients",
+        "output": {
+          "nutrientLevels": "{ nutrient: { consumed, rda, percentage } }",
+          "deficiencies": "[ { nutrient, severity: 'low' | 'moderate' | 'high' } ]",
+          "recommendations": "[ { food, nutrientsProvided } ]"
+        },
+        "endpoint": "GET /api/ai/nutrient-gaps",
+        "frontend": "/nutrition-insights page with nutrient bars and food suggestions"
+      },
+      "priority": "Medium (good addition if core features done early)"
+    },
+    "3_adminPanel": {
+      "description": "Manage seeded data, view analytics",
+      "implementation": {
+        "authentication": "Laravel admin middleware or separate admin_users table",
+        "features": [
+          "CRUD for food_items",
+          "CRUD for resources",
+          "View stats: Total users, active users (logged in last 7 days), popular foods",
+          "View aggregated data: Total waste across all users, average SDG score"
+        ],
+        "endpoints": [
+          "GET /api/admin/stats",
+          "GET/POST/PUT/DELETE /api/admin/food-items",
+          "GET/POST/PUT/DELETE /api/admin/resources"
+        ],
+        "frontend": "/admin dashboard with tables and charts"
+      },
+      "priority": "Low (nice-to-have, focus on user-facing features first)"
+    },
+    "4_multiLanguageSupport": {
+      "description": "Support additional language(s) beyond English",
+      "implementation": {
+        "approach": "i18n with JSON translation files",
+        "languages": "Choose 1-2: Spanish, French, Bengali (for Bangladesh context)",
+        "structure": {
+          "frontend": "locales/en.json, locales/es.json (translation key-value pairs)",
+          "backend": "Laravel lang/ directory for API messages"
+        },
+        "switching": "Language selector in navbar, store preference in user profile",
+        "translation": "Use Google Translate API for dynamic content or pre-translate static strings",
+        "frontend": "Use next-i18next or custom hook for translations"
+      },
+      "priority": "Medium (relatively easy to implement, good bonus)"
+    },
+    "bonusSelection": {
+      "recommendation": "Choose based on team strengths and time",
+      "suggested": "multiLanguageSupport (easiest) OR nutrientGapPrediction (most impactful)",
+      "timeEstimate": "1-2 hours per bonus feature"
+    }
+  },
+  "teamWorkflow": {
+    "division": {
+      "partner1_pythonExpert": {
+        "primary": [
+          "Python AI service setup and core logic",
+          "Consumption pattern analyzer (Python)",
+          "Meal optimization engine (Python + OpenAI)",
+          "OCR implementation (Python + Tesseract)",
+          "Waste predictor (Python)",
+          "Impact scorer (Python)"
+        ],
+        "secondary": [
+          "Frontend AI pages (insights, meal planner, impact)",
+          "Chat UI for NourishBot"
+        ]
+      },
+      "partner2_laravelExpert": {
+        "primary": [
+          "New Laravel API endpoints",
+          "Database migrations for new tables",
+          "HTTP client to communicate with Python service",
+          "NourishBot implementation (Laravel + OpenAI)",
+          "Expiration risk logic (can be Laravel)",
+          "Waste estimation (can be Laravel)"
+        ],
+        "secondary": [
+          "Help with Python service deployment/testing",
+          "API documentation"
+        ]
+      }
+    },
+    "parallelDevelopment": {
+      "hour0-1": {
+        "both": "Read Part 2 requirements, update project plan",
+        "partner1": "Setup Python AI service structure, install dependencies",
+        "partner2": "Create database migrations for new tables, design API endpoints"
+      },
+      "hour1-3": {
+        "partner1": "Implement consumption analyzer + OCR extraction",
+        "partner2": "Build API endpoints, integrate Python service HTTP client"
+      },
+      "hour3-5": {
+        "partner1": "Meal optimizer + waste predictor",
+        "partner2": "NourishBot implementation + expiration risk endpoints"
+      },
+      "hour5-7": {
+        "partner1": "Frontend pages for AI features (insights, meal planner)",
+        "partner2": "Impact scoring + waste estimation, test API endpoints"
+      },
+      "hour7-9": {
+        "both": "Integration testing, bug fixes, polish UI",
+        "partner1": "Chat UI + OCR confirmation flow",
+        "partner2": "Alert system + dashboard updates"
+      },
+      "hour9-10": {
+        "both": "Final testing, README update, prepare demo, choose and implement 1 bonus feature if time allows"
+      }
+    },
+    "communication": {
+      "apiContracts": "Define clear request/response schemas before starting",
+      "testing": "Use Postman/Thunder Client to test endpoints before frontend integration",
+      "gitWorkflow": "Separate branches (python-ai-service, laravel-part2, frontend-part2), merge frequently",
+      "checkpoints": "Every 2 hours, sync progress and blockers"
+    }
+  },
+  "databaseExtensions": {
+    "newTables": {
+      "consumption_patterns": {
+        "columns": {
+          "id": "bigint PRIMARY KEY",
+          "user_id": "bigint FOREIGN KEY",
+          "analysis_date": "date",
+          "weekly_trends": "json (heatmap data)",
+          "over_consumption": "json",
+          "under_consumption": "json",
+          "waste_risk_items": "json",
+          "created_at": "timestamp"
+        }
+      },
+      "meal_plans": {
+        "columns": {
+          "id": "bigint PRIMARY KEY",
+          "user_id": "bigint FOREIGN KEY",
+          "week_start_date": "date",
+          "plan_data": "json (full meal plan)",
+          "shopping_list": "json",
+          "total_cost": "decimal(10,2)",
+          "created_at": "timestamp"
+        }
+      },
+      "chat_sessions": {
+        "columns": {
+          "id": "bigint PRIMARY KEY",
+          "user_id": "bigint FOREIGN KEY",
+          "session_id": "varchar(255) UNIQUE (UUID)",
+          "messages": "json (array of message objects)",
+          "created_at": "timestamp",
+          "updated_at": "timestamp"
+        }
+      },
+      "impact_scores": {
+        "columns": {
+          "id": "bigint PRIMARY KEY",
+          "user_id": "bigint FOREIGN KEY",
+          "score_date": "date",
+          "overall_score": "decimal(5,2)",
+          "waste_reduction_score": "decimal(5,2)",
+          "nutrition_balance_score": "decimal(5,2)",
+          "inventory_utilization_score": "decimal(5,2)",
+          "sustainable_practices_score": "decimal(5,2)",
+          "insights": "text",
+          "action_steps": "json",
+          "created_at": "timestamp"
+        }
+      },
+      "waste_predictions": {
+        "columns": {
+          "id": "bigint PRIMARY KEY",
+          "user_id": "bigint FOREIGN KEY",
+          "prediction_date": "date",
+          "weekly_waste_grams": "decimal(10,2)",
+          "weekly_waste_cost": "decimal(10,2)",
+          "monthly_waste_grams": "decimal(10,2)",
+          "monthly_waste_cost": "decimal(10,2)",
+          "projected_yearly_grams": "decimal(10,2)",
+          "projected_yearly_cost": "decimal(10,2)",
+          "created_at": "timestamp"
+        }
+      },
+      "food_surplus": {
+        "optional": true,
+        "columns": {
+          "id": "bigint PRIMARY KEY",
+          "user_id": "bigint FOREIGN KEY",
+          "item_name": "varchar(255)",
+          "quantity": "decimal(10,2)",
+          "unit": "varchar(50)",
+          "location_lat": "decimal(10,8)",
+          "location_lng": "decimal(11,8)",
+          "available_until": "datetime",
+          "status": "enum('available', 'claimed', 'expired')",
+          "created_at": "timestamp"
+        }
+      }
+    },
+    "tableModifications": {
+      "inventories": {
+        "addColumns": [
+          "is_expired boolean DEFAULT false",
+          "expired_at timestamp NULL"
+        ],
+        "purpose": "Track expired items for waste calculation"
+      },
+      "food_items": {
+        "addColumns": [
+          "nutrients json (optional, for nutrient gap bonus)",
+          "seasonality varchar(50) (e.g., 'summer_fast_expiry')"
+        ],
+        "purpose": "Support advanced AI features"
+      }
+    }
+  },
+  "apiEndpointsExtension": {
+    "aiAnalysis": {
+      "POST /api/ai/analyze-patterns": {
+        "auth": "required",
+        "description": "Analyze user consumption patterns",
+        "request": {
+          "userId": "integer",
+          "daysBack": "integer (default 30)"
+        },
+        "response": {
+          "weeklyTrends": "object",
+          "overConsumption": "array",
+          "underConsumption": "array",
+          "wasteRiskItems": "array",
+          "imbalancedPatterns": "array",
+          "heatmapData": "array"
+        },
+        "implementedIn": "Python AI service, called by Laravel"
+      },
+      "POST /api/ai/optimize-meal-plan": {
+        "auth": "required",
+        "description": "Generate optimized weekly meal plan",
+        "request": {
+          "userId": "integer",
+          "weekStartDate": "date",
+          "customPreferences": "string optional"
+        },
+        "response": {
+          "mealPlan": "array",
+          "shoppingList": "array",
+          "totalCost": "number",
+          "budgetRemaining": "number",
+          "nutritionSummary": "object"
+        },
+        "implementedIn": "Python AI service"
+      },
+      "POST /api/ai/ocr-extract": {
+        "auth": "required",
+        "description": "Extract food items from receipt/label image",
+        "request": {
+          "imageId": "integer",
+          "extractionType": "string (receipt | food_label)"
+        },
+        "response": {
+          "extractedText": "string",
+          "parsedItems": "array",
+          "confidence": "number (0-1)",
+          "requiresConfirmation": "boolean"
+        },
+        "implementedIn": "Python AI service (OCR + parsing)"
+      },
+      "GET /api/ai/expiration-risks": {
+        "auth": "required",
+        "description": "Get items at risk of expiring",
+        "query": {
+          "threshold": "integer (risk score threshold, default 50)"
+        },
+        "response": {
+          "highRiskItems": "array",
+          "priorityOrder": "array"
+        },
+        "implementedIn": "Python or Laravel"
+      },
+      "GET /api/ai/waste-estimation": {
+        "auth": "required",
+        "description": "Calculate waste metrics and projections",
+        "response": {
+          "currentWeekWaste": "object",
+          "currentMonthWaste": "object",
+          "projectedYearlyWaste": "object",
+          "communityAverage": "object",
+          "comparison": "object"
+        },
+        "implementedIn": "Laravel (simple calculations)"
+      },
+      "GET /api/ai/impact-score": {
+        "auth": "required",
+        "description": "Calculate SDG impact score",
+        "response": {
+          "overallScore": "number",
+          "breakdown": "object",
+          "weeklyChange": "number",
+          "insights": "string",
+          "actionSteps": "array"
+        },
+        "implementedIn": "Python AI service"
+      }
+    },
+    "chatbot": {
+      "POST /api/chatbot/message": {
+        "auth": "required",
+        "description": "Send message to NourishBot",
+        "request": {
+          "sessionId": "string (UUID)",
+          "message": "string"
+        },
+        "response": {
+          "reply": "string",
+          "sources": "array (optional)",
+          "suggestedActions": "array (optional)"
+        },
+        "implementedIn": "Laravel (calls OpenAI API)"
+      },
+      "GET /api/chatbot/sessions": {
+        "auth": "required",
+        "description": "Get user's chat session history",
+        "response": {
+          "sessions": "array"
+        }
+      },
+      "DELETE /api/chatbot/sessions/{sessionId}": {
+        "auth": "required",
+        "description": "Clear chat session"
+      }
+    },
+    "bonusEndpoints": {
+      "GET /api/food-surplus": {
+        "optional": true,
+        "auth": "optional",
+        "query": {
+          "lat": "number",
+          "lng": "number",
+          "radius": "number (km)"
+        },
+        "response": {
+          "listings": "array"
+        }
+      },
+      "POST /api/food-surplus": {
+        "optional": true,
+        "auth": "required",
+        "request": {
+          "itemName": "string",
+          "quantity": "number",
+          "unit": "string",
+          "availableUntil": "datetime"
+        }
+      },
+      "GET /api/ai/nutrient-gaps": {
+        "optional": true,
+        "auth": "required",
+        "response": {
+          "nutrientLevels": "object",
+          "deficiencies": "array",
+          "recommendations": "array"
+        }
+      }
+    }
+  },
+  "pythonAIServiceImplementation": {
+    "projectStructure": {
+      "ai-service/": {
+        "app.py or main.py": "Flask/FastAPI main application",
+        "requirements.txt": "Dependencies",
+        "config/": {
+          "settings.py": "Configuration (API keys, model settings)"
+        },
+        "services/": {
+          "consumption_analyzer.py": "Pattern analysis logic",
+          "meal_optimizer.py": "Meal planning optimization",
+          "ocr_service.py": "OCR extraction and parsing",
+          "waste_predictor.py": "Waste calculation and prediction",
+          "impact_scorer.py": "SDG score calculation"
+        },
+        "utils/": {
+          "data_processor.py": "Data transformation utilities",
+          "prompt_templates.py": "LLM prompt templates",
+          "openai_client.py": "OpenAI API wrapper"
+        },
+        ".env": "Environment variables (API keys)"
+      }
+    },
+    "requirementsTxt": {
+      "core": [
+        "flask==3.0.0 or fastapi==0.104.0",
+        "python-dotenv==1.0.0",
+        "requests==2.31.0"
+      ],
+      "dataProcessing": [
+        "numpy==1.24.3",
+        "pandas==2.0.3"
+      ],
+      "ai": [
+        "openai==1.3.0"
+      ],
+      "ocr": [
+        "pytesseract==0.3.10",
+        "Pillow==10.1.0"
+      ],
+      "optional": [
+        "scikit-learn==1.3.0 (if using ML models)"
+      ]
+    },
+    "flaskSetup": {
+      "basicStructure": "from flask import Flask, request, jsonify\nfrom flask_cors import CORS\nfrom services.consumption_analyzer import analyze_patterns\n\napp = Flask(__name__)\nCORS(app)\n\n@app.route('/analyze-patterns', methods=['POST'])\ndef analyze():\n    data = request.get_json()\n    result = analyze_patterns(data['userId'], data.get('daysBack', 30))\n    return jsonify(result)\n\nif __name__ == '__main__':\n    app.run(port=5000, debug=True)",
+      "errorHandling": "Use try-except blocks, return consistent error format: {'error': message, 'status': code}"
+    },
+    "serviceExamples": {
+      "consumptionAnalyzer": {
+        "file": "services/consumption_analyzer.py",
+        "pseudocode": "def analyze_patterns(user_id, days_back):\n    # Fetch data from Laravel API\n    logs = fetch_consumption_logs(user_id, days_back)\n    inventory = fetch_inventory(user_id)\n    \n    # Process with pandas\n    df = pd.DataFrame(logs)\n    df['day_of_week'] = pd.to_datetime(df['consumption_date']).dt.day_name()\n    \n    # Generate heatmap data\n    heatmap = df.groupby(['day_of_week', 'category'])['quantity'].sum().to_dict()\n    \n    # Detect patterns\n    over_consumption = detect_over_consumption(df)\n    under_consumption = detect_under_consumption(df)\n    waste_risks = predict_waste_risks(inventory, df)\n    \n    return {\n        'weeklyTrends': heatmap,\n        'overConsumption': over_consumption,\n        'underConsumption': under_consumption,\n        'wasteRiskItems': waste_risks\n    }",
+        "keyFunctions": [
+          "fetch_consumption_logs(): HTTP GET to Laravel API",
+          "detect_over_consumption(): Compare to category averages",
+          "predict_waste_risks(): Match inventory items with low consumption frequency"
+        ]
+      },
+      "mealOptimizer": {
+        "file": "services/meal_optimizer.py",
+        "pseudocode": "def optimize_meal_plan(user_id, week_start, preferences):\n    # Fetch user data\n    inventory = fetch_inventory(user_id)\n    budget = fetch_user_budget(user_id)\n    \n    # Prioritize inventory items by expiry\n    sorted_items = sort_by_expiry(inventory)\n    \n    # Create base meals using inventory\n    base_meals = create_meals_from_inventory(sorted_items)\n    \n    # Calculate remaining budget\n    remaining_budget = budget - sum([item['cost'] for item in base_meals])\n    \n    # Use LLM to suggest additional meals\n    llm_meals = generate_meals_with_llm(remaining_budget, preferences)\n    \n    # Combine and validate\n    full_plan = base_meals + llm_meals\n    shopping_list = generate_shopping_list(full_plan, inventory)\n    \n    return {\n        'mealPlan': full_plan,\n        'shoppingList': shopping_list,\n        'totalCost': calculate_total_cost(shopping_list)\n    }",
+        "llmIntegration": "from utils.openai_client import call_gpt\n\ndef generate_meals_with_llm(budget, preferences):\n    prompt = f'Generate 3 budget-friendly meals for ${budget}. Preferences: {preferences}. Return JSON.'\n    response = call_gpt(prompt, temperature=0.7)\n    return parse_llm_response(response)"
+      },
+      "ocrService": {
+        "file": "services/ocr_service.py",
+        "pseudocode": "import pytesseract\nfrom PIL import Image\nimport re\n\ndef extract_items_from_image(image_path, extraction_type):\n    # Preprocess image\n    image = Image.open(image_path)\n    processed = preprocess_image(image)\n    \n    # Run OCR\n    text = pytesseract.image_to_string(processed)\n    \n    # Parse text\n    items = parse_food_items(text, extraction_type)\n    \n    # Enhance with LLM if low confidence\n    if items['confidence'] < 0.7:\n        items = enhance_with_llm(text)\n    \n    return {\n        'extractedText': text,\n        'parsedItems': items['items'],\n        'confidence': items['confidence']\n    }\n\ndef parse_food_items(text, type):\n    # Regex patterns for common formats\n    patterns = {\n        'item': r'([A-Za-z\\s]+)\\s+(\\d+\\.?\\d*)\\s*(kg|g|L|ml|pcs)',\n        'date': r'(\\d{1,2}[-/]\\d{1,2}[-/]\\d{2,4})'\n    }\n    \n    items = []\n    for match in re.finditer(patterns['item'], text):\n        items.append({\n            'itemName': match.group(1).strip(),\n            'quantity': float(match.group(2)),\n            'unit': match.group(3)\n        })\n    \n    return {'items': items, 'confidence': 0.8}",
+        "preprocessing": "def preprocess_image(image):\n    # Convert to grayscale\n    grayscale = image.convert('L')\n    # Apply threshold\n    threshold = grayscale.point(lambda x: 0 if x < 128 else 255)\n    return threshold"
+      }
+    },
+    "laravelIntegration": {
+      "httpClient": "use Illuminate\\Support\\Facades\\Http;\n\nclass AIServiceClient\n{\n    private $baseUrl;\n    \n    public function __construct()\n    {\n        $this->baseUrl = config('services.ai.url', 'http://localhost:5000');\n    }\n    \n    public function analyzePatterns($userId, $daysBack = 30)\n    {\n        $response = Http::timeout(60)->post(\"{$this->baseUrl}/analyze-patterns\", [\n            'userId' => $userId,\n            'daysBack' => $daysBack\n        ]);\n        \n        if ($response->failed()) {\n            throw new \\Exception('AI service request failed');\n        }\n        \n        return $response->json();\n    }\n    \n    public function optimizeMealPlan($userId, $weekStart, $preferences = null)\n    {\n        $response = Http::timeout(120)->post(\"{$this->baseUrl}/optimize-meal-plan\", [\n            'userId' => $userId,\n            'weekStartDate' => $weekStart,\n            'customPreferences' => $preferences\n        ]);\n        \n        return $response->json();\n    }\n}",
+      "controller": "class AIAnalysisController extends Controller\n{\n    private $aiService;\n    \n    public function __construct(AIServiceClient $aiService)\n    {\n        $this->aiService = $aiService;\n    }\n    \n    public function analyzePatterns(Request $request)\n    {\n        try {\n            $result = $this->aiService->analyzePatterns(\n                $request->user()->id,\n                $request->input('daysBack', 30)\n            );\n            \n            ConsumptionPattern::create([\n                'user_id' => $request->user()->id,\n                'analysis_date' => now(),\n                'weekly_trends' => $result['weeklyTrends'],\n                'over_consumption' => $result['overConsumption'],\n                'under_consumption' => $result['underConsumption'],\n                'waste_risk_items' => $result['wasteRiskItems']\n            ]);\n            \n            return response()->json($result);\n        } catch (\\Exception $e) {\n            return response()->json(['error' => $e->getMessage()], 500);\n        }\n    }\n}"
+    }
+  },
+  "nourishBotImplementation": {
+    "approachDecision": {
+      "option1_laravel": {
+        "pros": "Simpler, direct OpenAI integration, partner 2's expertise",
+        "cons": "None significant",
+        "recommendation": "Implement in Laravel"
+      },
+      "option2_python": {
+        "pros": "Centralized AI service",
+        "cons": "Extra HTTP call overhead",
+        "recommendation": "Use if already building Python service"
+      }
+    },
+    "laravelImplementation": {
+      "openaiSetup": "composer require openai-php/laravel\n\n// config/openai.php\nreturn [\n    'api_key' => env('OPENAI_API_KEY'),\n];",
+      "controller": "use OpenAI\\Laravel\\Facades\\OpenAI;\n\nclass ChatbotController extends Controller\n{\n    public function sendMessage(Request $request)\n    {\n        $request->validate([\n            'sessionId' => 'required|string',\n            'message' => 'required|string|max:1000'\n        ]);\n        \n        $session = ChatSession::firstOrCreate(\n            ['session_id' => $request->sessionId, 'user_id' => $request->user()->id],\n            ['messages' => []]\n        );\n        \n        $messages = $session->messages ?? [];\n        $messages[] = ['role' => 'user', 'content' => $request->message];\n        \n        $context = $this->buildContext($request->user());\n        $systemPrompt = $this->buildSystemPrompt($context);\n        \n        $response = OpenAI::chat()->create([\n            'model' => 'gpt-3.5-turbo',\n            'messages' => [\n                ['role' => 'system', 'content' => $systemPrompt],\n                ...$messages\n            ],\n            'temperature' => 0.7,\n            'max_tokens' => 500\n        ]);\n        \n        $botReply = $response['choices'][0]['message']['content'];\n        $messages[] = ['role' => 'assistant', 'content' => $botReply];\n        \n        if (count($messages) > 20) {\n            $messages = array_slice($messages, -20);\n        }\n        \n        $session->update(['messages' => $messages]);\n        \n        return response()->json(['reply' => $botReply]);\n    }\n    \n    private function buildContext($user)\n    {\n        $inventory = $user->inventories()->take(10)->get();\n        $recentLogs = $user->consumptionLogs()->latest()->take(5)->get();\n        \n        return [\n            'inventory' => $inventory->pluck('item_name')->join(', '),\n            'recentLogs' => $recentLogs->pluck('item_name')->join(', '),\n            'preferences' => $user->dietary_preferences\n        ];\n    }\n    \n    private function buildSystemPrompt($context)\n    {\n        return \"You are NourishBot, an AI assistant helping users reduce food waste and improve nutrition. \n                The user currently has: {$context['inventory']}. \n                Recently consumed: {$context['recentLogs']}. \n                Dietary preferences: \" . json_encode($context['preferences']) . \". \n                Provide practical, concise advice. Be friendly and action-oriented.\";\n    }\n}",
+      "retrieval": "private function findRelevantResources($userMessage)\n{\n    $keywords = $this->extractKeywords($userMessage);\n    \n    return Resource::where(function($query) use ($keywords) {\n        foreach ($keywords as $keyword) {\n            $query->orWhere('title', 'LIKE', \"%{$keyword}%\")\n                  ->orWhere('tags', 'LIKE', \"%{$keyword}%\");\n        }\n    })->limit(2)->get();\n}\n\nprivate function extractKeywords($text)\n{\n    $stopWords = ['the', 'a', 'an', 'how', 'to', 'what', 'is'];\n    $words = str_word_count(strtolower($text), 1);\n    return array_diff($words, $stopWords);\n}"
+    }
+  },
+  "frontendImplementation": {
+    "newPages": {
+      "/insights": {
+        "file": "app/(dashboard)/insights/page.jsx",
+        "components": [
+          "ConsumptionHeatmap (recharts)",
+          "PatternInsightCards",
+          "WasteRiskAlerts",
+          "ExpirationTimeline"
+        ],
+        "dataFetching": "useEffect(() => { fetchPatterns(); }, []); const fetchPatterns = async () => { const res = await api.analyzePatterns(); setPatterns(res); };"
+      },
+      "/meal-planner": {
+        "file": "app/(dashboard)/meal-planner/page.jsx",
+        "features": [
+          "Week calendar view",
+          "Generate plan button",
+          "Loading state during generation (30-60s)",
+          "Display meals with ingredients",
+          "Shopping list sidebar",
+          "Export/print functionality"
+        ],
+        "state": "const [mealPlan, setMealPlan] = useState(null); const [loading, setLoading] = useState(false);"
+      },
+      "/nourishbot": {
+        "file": "app/(dashboard)/nourishbot/page.jsx",
+        "structure": "<div className='flex flex-col h-screen'>\n  <ChatHeader />\n  <MessageList messages={messages} />\n  <ChatInput onSend={handleSend} loading={loading} />\n</div>",
+        "components": {
+          "MessageList": "Scrollable div with messages, auto-scroll to bottom",
+          "ChatMessage": "Different styling for user vs bot, avatar, timestamp",
+          "ChatInput": "Textarea with send button, disable while loading"
+        },
+        "websocket": "Optional: Use for real-time streaming (advanced)"
+      },
+      "/impact": {
+        "file": "app/(dashboard)/impact/page.jsx",
+        "sections": [
+          "SDG Score Gauge (circular progress)",
+          "Score breakdown (4 bars)",
+          "Weekly trend chart (line chart)",
+          "Insights narrative",
+          "Action steps cards"
+        ],
+        "visualization": "Use recharts: <PieChart>, <LineChart>, custom gauge component"
+      }
+    },
+    "newComponents": {
+      "ConsumptionHeatmap": {
+        "file": "components/insights/ConsumptionHeatmap.jsx",
+        "library": "recharts or custom with CSS grid",
+        "props": "heatmapData: { dayOfWeek: { category: quantity } }",
+        "rendering": "7x6 grid (days x categories), color intensity based on quantity"
+      },
+      "MealPlanCard": {
+        "file": "components/meal-planner/MealPlanCard.jsx",
+        "props": "{ day, mealType, dishName, ingredients }",
+        "display": "Card with meal details, click to expand ingredients, show source badges (inventory/purchase)"
+      },
+      "ChatMessage": {
+        "file": "components/nourishbot/ChatMessage.jsx",
+        "props": "{ role, content, timestamp }",
+        "styling": "Different alignment and colors for user (right, blue) vs bot (left, gray)",
+        "markdown": "Use react-markdown if bot sends formatted responses"
+      },
+      "ImpactScoreGauge": {
+        "file": "components/impact/ImpactScoreGauge.jsx",
+        "type": "Circular progress indicator",
+        "implementation": "SVG circle with stroke-dasharray or use recharts RadialBarChart",
+        "props": "{ score, label }"
+      },
+      "ExpirationAlert": {
+        "file": "components/common/ExpirationAlert.jsx",
+        "display": "Banner on dashboard, list of high-risk items",
+        "actions": "Click to view item, add to meal plan, dismiss",
+        "styling": "Red for critical (< 3 days), yellow for warning (3-7 days)"
+      },
+      "OCRConfirmation": {
+        "file": "components/inventory/OCRConfirmation.jsx",
+        "purpose": "Modal showing extracted items for user confirmation",
+        "features": [
+          "Table of extracted items with edit fields",
+          "Checkbox to select which items to add",
+          "Confirm and add to inventory button",
+          "Show original image thumbnail"
+        ]
+      }
+    },
+    "dashboardUpdates": {
+      "additions": [
+        "Expiration alerts section (top)",
+        "Link to AI Insights",
+        "Link to Meal Planner",
+        "Quick chat with NourishBot button"
+      ]
+    }
+  },
+  "testingStrategy": {
+    "unit": {
+      "python": "Use pytest for testing individual service functions",
+      "laravel": "PHPUnit for controller and service tests (if time permits)"
+    },
+    "integration": {
+      "priority": [
+        "Test Laravel → Python AI service communication",
+        "Test OpenAI API calls (use mock responses in dev)",
+        "Test OCR pipeline end-to-end",
+        "Test chatbot conversation flow"
+      ],
+      "tools": "Postman for API endpoint testing, browser dev tools for frontend"
+    },
+    "manual": {
+      "criticalFlows": [
+        "Generate AI insights from dashboard",
+        "Create meal plan and view results",
+        "Upload receipt, confirm OCR extraction, add to inventory",
+        "Chat with NourishBot, get relevant advice",
+        "View impact score and understand breakdown",
+        "Check expiration alerts and take action"
+      ]
+    }
+  },
+  "deploymentConfiguration": {
+    "pythonService": {
+      "local": "python app.py (runs on http://localhost:5000)",
+      "production": "Use gunicorn: gunicorn -w 4 -b 0.0.0.0:5000 app:app",
+      "environment": ".env file with OPENAI_API_KEY, LARAVEL_API_URL"
+    },
+    "laravel": {
+      "config": "Add AI_SERVICE_URL=http://localhost:5000 to .env",
+      "scheduler": "For weekly impact scores: $schedule->call(function() { ... })->weekly();"
+    },
+    "tesseractInstallation": {
+      "ubuntu": "sudo apt-get install tesseract-ocr",
+      "macos": "brew install tesseract",
+      "windows": "Download installer from GitHub, add to PATH",
+      "note": "Document clearly in README"
+    }
+  },
+  "performanceOptimizations": {
+    "aiService": [
+      "Cache OpenAI responses for identical queries (optional)",
+      "Batch multiple requests if possible",
+      "Set reasonable timeouts (60-120s for meal optimization)",
+      "Use async/await for non-blocking operations"
+    ],
+    "frontend": [
+      "Show loading states with progress indicators",
+      "Lazy load AI insights (fetch on page visit, not dashboard load)",
+      "Cache meal plans (don't regenerate unless requested)",
+      "Debounce chat input if implementing real-time features"
+    ],
+    "ocrProcessing": [
+      "Resize large images before OCR (max 2MB)",
+      "Process asynchronously, show 'Extracting...' message",
+      "Store processed text to avoid re-running OCR"
+    ]
+  },
+  "costManagement": {
+    "openai": {
+      "strategy": "Use gpt-3.5-turbo (10x cheaper than GPT-4)",
+      "tokenLimits": [
+        "Limit conversation history to last 10 messages",
+        "Truncate long context to ~2000 tokens",
+        "Set max_tokens=500 for responses"
+      ],
+      "budgeting": "Monitor usage at platform.openai.com, set spending limits"
+    },
+    "alternatives": {
+      "freeOptions": [
+        "Anthropic Claude (limited free tier)",
+        "Hugging Face Inference API (free with rate limits)",
+        "Local models (requires GPU, complex setup)"
+      ],
+      "recommendation": "Start with OpenAI, provide fallback error messages if quota exceeded"
+    }
+  },
+  "documentationRequirements": {
+    "readmeUpdates": {
+      "part2Section": {
+        "title": "Part 2: AI-Powered Features",
+        "features": [
+          "✅ AI Consumption Pattern Analyzer with heatmap visualization",
+          "✅ Meal Optimization Engine with budget and nutrition constraints",
+          "✅ OCR-based receipt/label scanning with automatic inventory updates",
+          "✅ AI-powered expiration risk prediction and alerts",
+          "✅ Waste estimation model with community comparisons",
+          "✅ NourishBot: Multi-capability chatbot for personalized advice",
+          "✅ SDG Impact Scoring Engine with actionable insights",
+          "✅ [Bonus Feature if implemented]"
+        ]
+      },
+      "setup": {
+        "aiServiceSetup": [
+          "cd ai-service",
+          "python -m venv venv",
+          "source venv/bin/activate",
+          "pip install -r requirements.txt",
+          "Install Tesseract OCR (see instructions above)",
+          "cp .env.example .env",
+          "Add OPENAI_API_KEY=your_key to .env",
+          "python app.py (runs on http://localhost:5000)"
+        ],
+        "laravelConfig": [
+          "Add AI_SERVICE_URL=http://localhost:5000 to backend/.env",
+          "Add OPENAI_API_KEY=your_key to backend/.env",
+          "php artisan migrate (run new Part 2 migrations)"
+        ]
+      },
+      "externalAPIs": {
+        "openai": {
+          "purpose": "NourishBot chatbot and meal optimization",
+          "setup": "Get API key from platform.openai.com",
+          "cost": "~$0.002 per request with gpt-3.5-turbo"
+        },
+        "tesseract": {
+          "purpose": "OCR for receipt/label scanning",
+          "setup": "Install system dependency (see above)",
+          "alternative": "Google Vision API (requires separate setup and billing)"
+        }
+      },
+      "technicalDecisions": {
+        "aiService": "Python Flask API for centralized AI logic",
+        "llmProvider": "OpenAI GPT-3.5-turbo for cost-effectiveness",
+        "ocrEngine": "Tesseract OCR (free, local processing)",
+        "communication": "HTTP REST between Laravel and Python service"
+      }
+    },
+    "apiDocumentation": {
+      "format": "Add API.md file with all Part 2 endpoints",
+      "include": [
+        "Request/response examples",
+        "Authentication requirements",
+        "Error codes and messages",
+        "Rate limits (if any)"
+      ]
+    }
+  },
+  "commonChallenges": {
+    "challenge1": {
+      "issue": "OpenAI API rate limits or quota exceeded",
+      "solution": [
+        "Implement exponential backoff retry logic",
+        "Cache responses where possible",
+        "Show user-friendly error: 'AI service temporarily unavailable, please try again'",
+        "Consider implementing request queue"
+      ]
+    },
+    "challenge2": {
+      "issue": "OCR accuracy low on poor quality images",
+      "solution": [
+        "Implement image preprocessing (grayscale, threshold, deskew)",
+        "Always show confirmation modal for user to verify",
+        "Provide manual edit option",
+        "Add tips: 'For best results, use well-lit, straight photos'"
+      ]
+    },
+    "challenge3": {
+      "issue": "Meal optimization taking too long (>2 minutes)",
+      "solution": [
+        "Optimize algorithm: limit LLM calls, use simpler logic first",
+        "Show progress indicator: 'Analyzing inventory... Generating meals... Calculating costs...'",
+        "Set timeout at 120s, return partial results if needed",
+        "Cache results for same inputs"
+      ]
+    },
+    "challenge4": {
+      "issue": "Python service not connecting with Laravel",
+      "solution": [
+        "Check CORS configuration in Flask",
+        "Verify AI_SERVICE_URL in Laravel .env",
+        "Test Python service independently with curl/Postman",
+        "Check firewall/port settings",
+        "Add detailed error logging on both sides"
+      ]
+    },
+    "challenge5": {
+      "issue": "Consumption patterns analysis returns empty results",
+      "solution": [
+        "Ensure sufficient historical data (need 7+ days of logs)",
+        "Handle edge case: new users with minimal data",
+        "Show message: 'Need more data. Log consumption for a week to see patterns'",
+        "Use dummy data for demonstration if needed"
+      ]
+    },
+    "challenge6": {
+      "issue": "Chat context growing too large, hitting token limits",
+      "solution": [
+        "Limit conversation history to last 10 messages",
+        "Implement token counting (rough estimate: 1 token ≈ 4 chars)",
+        "Truncate old messages: keep system prompt + last N exchanges",
+        "Clear old sessions after 24 hours"
+      ]
+    },
+    "challenge7": {
+      "issue": "Impact score calculation seems arbitrary",
+      "solution": [
+        "Document formula clearly in code and UI",
+        "Show breakdown with specific numbers",
+        "Explain each factor's contribution",
+        "Test with various scenarios to ensure fairness"
+      ]
+    }
+  },
+  "hackathonOptimizations": {
+    "timeManagement": {
+      "phase1_hours0-2": {
+        "priority": "Setup and core infrastructure",
+        "tasks": [
+          "Both: Review requirements, plan division of work",
+          "Partner 1: Setup Python AI service skeleton, install dependencies",
+          "Partner 2: Create new migrations, design API endpoints",
+          "Both: Define API contracts for Laravel ↔ Python communication",
+          "Test: Ensure Python service can be reached from Laravel"
+        ],
+        "checkpoint": "Python service responding to test request from Laravel"
+      },
+      "phase2_hours2-4": {
+        "priority": "Core AI features implementation",
+        "tasks": [
+          "Partner 1: Implement consumption analyzer + OCR extraction (prioritize OCR)",
+          "Partner 2: Build Laravel endpoints for AI features + NourishBot basic setup",
+          "Partner 1: Start meal optimizer logic",
+          "Partner 2: Expiration risk prediction",
+          "Test: OCR pipeline working end-to-end"
+        ],
+        "checkpoint": "OCR working, consumption analysis returning data, basic chatbot responding"
+      },
+      "phase3_hours4-6": {
+        "priority": "Complete remaining AI features",
+        "tasks": [
+          "Partner 1: Finish meal optimizer, start waste predictor",
+          "Partner 2: Complete NourishBot with context, waste estimation calculations",
+          "Partner 1: Impact scorer implementation",
+          "Both: Test all AI endpoints independently"
+        ],
+        "checkpoint": "All 7 core features returning data via API"
+      },
+      "phase4_hours6-8": {
+        "priority": "Frontend integration",
+        "tasks": [
+          "Partner 1: Build AI insights page, meal planner page",
+          "Partner 2: Build chat UI, impact score page",
+          "Partner 1: OCR confirmation modal, expiration alerts on dashboard",
+          "Both: Connect all frontend pages to APIs",
+          "Test: Complete user flows working"
+        ],
+        "checkpoint": "All features accessible and functional from UI"
+      },
+      "phase5_hours8-9": {
+        "priority": "Polish and testing",
+        "tasks": [
+          "Both: Integration testing, fix bugs",
+          "Partner 1: Add visualizations (heatmap, charts)",
+          "Partner 2: Error handling, loading states",
+          "Both: Test critical user journeys",
+          "Choose and implement 1 bonus feature if time allows"
+        ],
+        "checkpoint": "Application stable, no critical bugs"
+      },
+      "phase6_hours9-10": {
+        "priority": "Final preparation",
+        "tasks": [
+          "Both: Update README with Part 2 setup",
+          "Partner 2: Add API documentation",
+          "Partner 1: Prepare demo script",
+          "Both: Test setup on fresh environment (if possible)",
+          "Practice demo presentation (5 min)",
+          "Final git commit and push"
+        ],
+        "checkpoint": "Ready to present"
+      }
+    },
+    "priorityOrder": {
+      "mustHave": [
+        "1. OCR extraction (visible, impressive demo)",
+        "2. NourishBot chatbot (core feature, user engagement)",
+        "3. Consumption pattern analysis (shows AI capability)",
+        "4. Meal optimization (practical value)",
+        "5. Impact scoring (SDG alignment)",
+        "6. Expiration risk prediction",
+        "7. Waste estimation"
+      ],
+      "reasoning": "OCR and chatbot are most visible to judges. Focus on these first for maximum impact.",
+      "ifTimeShort": "Skip waste estimation (can calculate on frontend), focus on features 1-5"
+    }
+  },
+  "demoPreparation": {
+    "demoFlow": {
+      "duration": "8-10 minutes",
+      "structure": [
+        "1. Quick Part 1 recap (30 sec): 'We have authentication, inventory, logging, resources'",
+        "2. OCR Demo (90 sec): Upload receipt → extract items → confirm → add to inventory",
+        "3. AI Insights (60 sec): Show consumption heatmap, patterns, waste risks",
+        "4. Meal Planner (90 sec): Generate optimized plan → show meals → shopping list",
+        "5. NourishBot (90 sec): Ask 2-3 questions, show contextual responses",
+        "6. Impact Score (60 sec): Show SDG score, breakdown, action steps",
+        "7. Expiration Alerts (30 sec): Show alerts on dashboard",
+        "8. Bonus Feature (60 sec, if implemented)",
+        "9. Technical Overview (60 sec): Architecture, tech stack, AI integration",
+        "10. Q&A (remaining time)"
+      ]
+    },
+    "demoData": {
+      "preparation": [
+        "Create demo user account with realistic data",
+        "Pre-populate 2 weeks of consumption logs",
+        "Add 15-20 inventory items with various expiry dates",
+        "Prepare 2-3 receipt images for OCR demo",
+        "Test demo flow 2-3 times before presentation"
+      ]
+    },
+    "talkingPoints": {
+      "technicalDepth": [
+        "Python AI service with Flask/FastAPI",
+        "OpenAI GPT-3.5-turbo integration for intelligent responses",
+        "Tesseract OCR with custom preprocessing pipeline",
+        "RESTful communication between Laravel and Python",
+        "Pandas for efficient data analysis",
+        "Real-time impact scoring aligned with SDG 2 & 12"
+      ],
+      "impact": [
+        "Reduces food waste through intelligent predictions",
+        "Improves nutrition with pattern analysis",
+        "Optimizes budgets with AI meal planning",
+        "Provides personalized guidance via NourishBot",
+        "Quantifies impact with SDG scoring",
+        "Simplifies inventory management with OCR"
+      ],
+      "extensibility": [
+        "Modular architecture allows easy feature additions",
+        "AI service can be scaled independently",
+        "Ready for mobile app integration",
+        "Can connect to real food sharing networks",
+        "Potential for community features and social impact tracking"
+      ]
+    }
+  },
+  "finalChecklist": {
+    "coreFeaturesCompletion": [
+      "□ Consumption pattern analyzer working (API + frontend)",
+      "□ Meal optimization engine generating plans",
+      "□ OCR extracting items from images",
+      "□ Expiration risk prediction showing alerts",
+      "□ Waste estimation calculating metrics",
+      "□ NourishBot responding to queries with context",
+      "□ Impact scoring displaying SDG score",
+      "□ At least 1 bonus feature implemented (if time)"
+    ],
+    "technicalRequirements": [
+      "□ Python AI service running on port 5000",
+      "□ Laravel backend communicating with Python service",
+      "□ OpenAI API key configured and working",
+      "□ Tesseract OCR installed and functional",
+      "□ All new database migrations run",
+      "□ All new API endpoints tested",
+      "□ Frontend pages rendering without errors",
+      "□ No console errors in browser",
+      "□ All images/assets loading correctly"
+    ],
+    "userExperience": [
+      "□ Loading states shown during AI operations",
+      "□ Error messages are user-friendly",
+      "□ All forms have proper validation",
+      "□ Navigation updated with new pages",
+      "□ Mobile responsive design maintained",
+      "□ AI responses are relevant and helpful",
+      "□ OCR confirmation flow is intuitive",
+      "□ Charts and visualizations display correctly"
+    ],
+    "documentation": [
+      "□ README updated with Part 2 setup instructions",
+      "□ Python AI service setup documented",
+      "□ OpenAI API key setup explained",
+      "□ Tesseract installation instructions clear",
+      "□ New environment variables listed",
+      "□ External API usage documented",
+      "□ Technical architecture explained",
+      "□ API endpoints documented (optional API.md)"
+    ],
+    "demoReadiness": [
+      "□ Demo user account created with data",
+      "□ Receipt images prepared for OCR demo",
+      "□ Demo script practiced",
+      "□ All features working in demo flow",
+      "□ Talking points prepared",
+      "□ Team roles assigned (who presents what)",
+      "□ Backup plan if internet/API fails",
+      "□ Repository public and accessible"
+    ]
+  },
+  "emergencyContingencies": {
+    "apiFailures": {
+      "openaiDown": [
+        "Have pre-recorded responses ready",
+        "Show architecture and explain how it works",
+        "Use cached example responses",
+        "Explain: 'Due to rate limits, showing cached example'"
+      ],
+      "pythonServiceCrash": [
+        "Have sample JSON responses ready",
+        "Show code and architecture",
+        "Explain: 'Service is functional, showing sample output'",
+        "Quick restart if possible (< 30 seconds)"
+      ]
+    },
+    "demoIssues": {
+      "ocrNotWorking": [
+        "Show manual entry flow",
+        "Display pre-extracted results",
+        "Explain OCR logic with code walkthrough"
+      ],
+      "slowPerformance": [
+        "Mention: 'Production would use caching/optimization'",
+        "Show loading states as feature",
+        "Use pre-generated results if too slow"
+      ]
+    },
+    "judgeQuestions": {
+      "commonQuestions": [
+        {
+          "q": "How accurate is your OCR?",
+          "a": "Using Tesseract with preprocessing, achieving ~80-85% accuracy. User confirmation ensures 100% accuracy in final inventory."
+        },
+        {
+          "q": "How do you handle different receipt formats?",
+          "a": "Using flexible regex patterns + LLM fallback. Future: train custom model on receipt datasets."
+        },
+        {
+          "q": "What if users don't have enough data?",
+          "a": "System provides friendly messages and basic features. Full AI features unlock after 7 days of usage."
+        },
+        {
+          "q": "How do you ensure AI recommendations are safe/ethical?",
+          "a": "Using curated system prompts, validated outputs, and user confirmation flows. NourishBot focuses on positive reinforcement."
+        },
+        {
+          "q": "What about privacy with AI processing?",
+          "a": "Data sent to OpenAI follows their privacy policy. For production, we'd implement local models or on-premise AI."
+        },
+        {
+          "q": "How scalable is this architecture?",
+          "a": "Python service can be containerized and scaled horizontally. Laravel handles caching and rate limiting. Ready for cloud deployment."
+        }
+      ]
+    }
+  },
+  "codeQualityStandards": {
+    "consistencyChecks": [
+      "API response format consistent across endpoints",
+      "Error handling follows same pattern everywhere",
+      "Naming conventions match between frontend/backend",
+      "Database column names follow snake_case",
+      "React component names follow PascalCase",
+      "Function names are descriptive and action-oriented"
+    ],
+    "performanceChecks": [
+      "No N+1 query issues in Laravel",
+      "Pagination on all list endpoints",
+      "Reasonable timeouts set (60-120s for AI)",
+      "Image file sizes validated (max 5MB)",
+      "Loading states prevent multiple submissions"
+    ],
+    "securityChecks": [
+      "API keys in .env, never committed",
+      "User authorization on all AI endpoints",
+      "File upload validation (type, size)",
+      "SQL injection prevented (using Eloquent)",
+      "XSS prevented (React escaping + Laravel sanitization)"
+    ]
+  },
+  "lessonsLearned": {
+    "bestPractices": [
+      "Define API contracts BEFORE implementing features",
+      "Test Python service independently before Laravel integration",
+      "Keep OpenAI prompts in separate files for easy modification",
+      "Always show loading states for async operations",
+      "Cache expensive AI operations where possible",
+      "Provide fallbacks for every AI feature",
+      "Log all AI API calls for debugging",
+      "Test with realistic data, not just dummy data"
+    ],
+    "avoidMistakes": [
+      "Don't start frontend before backend API is testable",
+      "Don't skip error handling to save time (costs more later)",
+      "Don't forget CORS configuration for Python service",
+      "Don't hardcode OpenAI model names (use config)",
+      "Don't ignore token limits (will cause runtime errors)",
+      "Don't optimize prematurely (make it work, then make it fast)",
+      "Don't skip README updates (judges read it!)"
+    ]
+  },
+  "successMetrics": {
+    "technical": [
+      "All 7 core AI features implemented and functional",
+      "< 5 critical bugs",
+      "< 60s average response time for AI operations",
+      "> 80% OCR accuracy on test receipts",
+      "Zero security vulnerabilities in core auth flow"
+    ],
+    "presentation": [
+      "Demo runs smoothly without crashes",
+      "All features demonstrated in < 10 minutes",
+      "Judges understand technical architecture",
+      "Clear explanation of SDG 2 & 12 alignment",
+      "Confident answers to technical questions"
+    ],
+    "impact": [
+      "Demonstrable waste reduction potential",
+      "Clear nutritional improvement pathway",
+      "Realistic budget optimization",
+      "Engaging user experience",
+      "Scalable architecture for real-world deployment"
+    ]
+  },
+  "postHackathonConsiderations": {
+    "ifWinning": [
+      "Prepare pitch for potential investors/partners",
+      "Document architecture for future development",
+      "Identify top 3 features to polish for production",
+      "Consider user testing with real households"
+    ],
+    "improvements": [
+      "Replace dummy data with real food databases",
+      "Implement proper authentication for admin panel",
+      "Add email notifications for expiration alerts",
+      "Build mobile app with React Native",
+      "Integrate with real food sharing platforms",
+      "Train custom ML models on historical data",
+      "Add multi-language support for broader reach",
+      "Implement offline mode for areas with poor connectivity"
+    ]
+  },
+  "metaInstructionsForAI": {
+    "copilotGuidance": [
+      "This is a time-constrained hackathon - prioritize working code over perfect code",
+      "Focus on features that DEMO well (OCR, chatbot, visualizations)",
+      "Keep AI prompts simple and effective - no need for complex prompt engineering",
+      "Reuse code patterns from Part 1 where possible",
+      "When generating Python code, assume partner is comfortable but not expert",
+      "When generating Laravel code, assume partner is expert - use advanced patterns",
+      "Always include error handling - silent failures waste demo time",
+      "Comment only truly complex AI logic, not obvious code",
+      "Generate complete, runnable code - no placeholders or TODOs",
+      "Test mentally before generating - will this work in 10-hour timeframe?",
+      "If a feature is too complex, suggest simpler alternative that still demos well"
+    ],
+    "contextAwareness": [
+      "Team has already completed Part 1 successfully",
+      "Partner 1 is Python expert, will own AI service",
+      "Partner 2 is Laravel expert, will own backend integration",
+      "Both can work on frontend but Partner 1 will lead AI pages",
+      "Time limit is strict: 10 hours total",
+      "Judges value: technical depth + real impact + demo quality",
+      "SDG 2 & 12 alignment must be clear in every feature"
+    ]
+  }
+}
