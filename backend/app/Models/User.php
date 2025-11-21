@@ -27,6 +27,11 @@ use Laravel\Sanctum\HasApiTokens;
  * @property-read \Illuminate\Database\Eloquent\Collection<ConsumptionLog> $consumptionLogs
  * @property-read \Illuminate\Database\Eloquent\Collection<Inventory> $inventories
  * @property-read \Illuminate\Database\Eloquent\Collection<ImageUpload> $imageUploads
+ * @property-read \Illuminate\Database\Eloquent\Collection<ConsumptionPattern> $consumptionPatterns
+ * @property-read \Illuminate\Database\Eloquent\Collection<MealPlan> $mealPlans
+ * @property-read \Illuminate\Database\Eloquent\Collection<ChatSession> $chatSessions
+ * @property-read \Illuminate\Database\Eloquent\Collection<ImpactScore> $impactScores
+ * @property-read \Illuminate\Database\Eloquent\Collection<WastePrediction> $wastePredictions
  */
 class User extends Authenticatable
 {
@@ -91,5 +96,45 @@ class User extends Authenticatable
     public function imageUploads(): HasMany
     {
         return $this->hasMany(ImageUpload::class);
+    }
+
+    /**
+     * Get the consumption patterns for the user.
+     */
+    public function consumptionPatterns(): HasMany
+    {
+        return $this->hasMany(ConsumptionPattern::class);
+    }
+
+    /**
+     * Get the meal plans for the user.
+     */
+    public function mealPlans(): HasMany
+    {
+        return $this->hasMany(MealPlan::class);
+    }
+
+    /**
+     * Get the chat sessions for the user.
+     */
+    public function chatSessions(): HasMany
+    {
+        return $this->hasMany(ChatSession::class);
+    }
+
+    /**
+     * Get the impact scores for the user.
+     */
+    public function impactScores(): HasMany
+    {
+        return $this->hasMany(ImpactScore::class);
+    }
+
+    /**
+     * Get the waste predictions for the user.
+     */
+    public function wastePredictions(): HasMany
+    {
+        return $this->hasMany(WastePrediction::class);
     }
 }
